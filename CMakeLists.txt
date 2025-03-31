@@ -6,3 +6,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(heshen)
 
 add_subdirectory(rolling-utils)
+add_subdirectory(rolling-audio)
