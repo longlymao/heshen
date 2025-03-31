@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.10)
 
-#create a project
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 project(heshen)
 
-#create exe file
-add_executable(main source/main.cpp)
+add_subdirectory(rolling-utils)
