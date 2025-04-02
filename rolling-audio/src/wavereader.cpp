@@ -58,13 +58,32 @@ namespace raudio {
 
 	bool raudio::WaveReader::ReadFmt(std::ifstream& stream, const ChunkHeader& chunk)
 	{
-		stream.seekg(chunk.size, std::ios::cur);
+		if (chunk.size != WavFmt::baseSize && chunk.size != sizeof(WavFmt)) {
+			return false;
+		}
+		if (!stream.read(reinterpret_cast<char*>(&fmt), WavFmt::baseSize)) {
+			return false;
+		}
+		if (chunk.size == sizeof(WavFmt)) {
+			if (fmt.formatTag != RAU_WAVE_FORMAT::RAU_WAVE_FORMAT_PCM) {
+				return false;
+			}
+			if (!stream.read(reinterpret_cast<char*>(fmt.extendedSize), sizeof(WavFmt) - WavFmt::baseSize)) {
+				return false;
+			}
+			if (fmt.extendedSize != WavFmt::standardExtendedSize) {
+				return false;
+			}
+		}
 		return true;
 	}
 
 	bool raudio::WaveReader::ReadData(std::ifstream& stream, const ChunkHeader& chunk)
 	{
-		stream.seekg(chunk.size, std::ios::cur);
+		rawData.resize(chunk.size);
+		if (!stream.read(const_cast<char*>(rawData.data()), chunk.size)) {
+			return false;
+		}
 		return true;
 	}
 
