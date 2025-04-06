@@ -11,3 +11,5 @@ project(heshen)
 
 add_subdirectory(rolling-utils)
 add_subdirectory(rolling-audio)
+
+add_subdirectory(rolling-render)
