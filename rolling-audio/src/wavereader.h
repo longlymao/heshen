@@ -62,7 +62,7 @@ namespace raudio {
 		bool ReadRiff(std::ifstream& stream);
 		bool ReadFmt(std::ifstream& stream, const ChunkHeader& chunk);
 		bool ReadData(std::ifstream& stream, const ChunkHeader& chunk);
-		bool ReadChunk(std::ifstream& stream, ChunkHeader& chunk); 
+		bool ReadChunk(std::ifstream& stream, ChunkHeader& chunk);
 
 	private:
 		WavFmt fmt;

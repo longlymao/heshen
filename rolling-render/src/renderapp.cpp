@@ -22,7 +22,7 @@ namespace rrender {
 
 	void RenderApp::Init()
 	{
-        InitFrequencyAndFrameRate();
+		InitFrequencyAndFrameRate();
 		m_Window->Init();
 	}
 
@@ -38,45 +38,45 @@ namespace rrender {
 
 	void RenderApp::MainLoop()
 	{
-        int retCode = 0;
+		int retCode = 0;
 
-        LARGE_INTEGER nLast;
-        LARGE_INTEGER nNow;
+		LARGE_INTEGER nLast;
+		LARGE_INTEGER nNow;
 
-        QueryPerformanceCounter(&nLast);
+		QueryPerformanceCounter(&nLast);
 
-        LONGLONG interval = 0LL;
-        LONG waitMS = 0L;
+		LONGLONG interval = 0LL;
+		LONG waitMS = 0L;
 
-        while (!m_Window->WindowShouldClose())
-        {
-            QueryPerformanceCounter(&nNow);
-            interval = nNow.QuadPart - nLast.QuadPart;
+		while (!m_Window->WindowShouldClose())
+		{
+			QueryPerformanceCounter(&nNow);
+			interval = nNow.QuadPart - nLast.QuadPart;
 
-            if (interval >= m_FrameInterval.QuadPart)
-            {
-                nLast.QuadPart = nNow.QuadPart;
+			if (interval >= m_FrameInterval.QuadPart)
+			{
+				nLast.QuadPart = nNow.QuadPart;
 				Update();
-                Render();
-            }
-            else
-            {
-                waitMS = static_cast<LONG>((m_FrameInterval.QuadPart - interval) * 1000LL / m_Frequency.QuadPart - 1L);
-                if (waitMS > 1L)
-                    Sleep(waitMS);
-            }
-        }
+				Render();
+			}
+			else
+			{
+				waitMS = static_cast<LONG>((m_FrameInterval.QuadPart - interval) * 1000LL / m_Frequency.QuadPart - 1L);
+				if (waitMS > 1L)
+					Sleep(waitMS);
+			}
+		}
 	}
 
-    void RenderApp::SetFrameRate(int frameRate)
-    {
-        m_FrameRate = frameRate;
-        m_FrameInterval.QuadPart = (LONGLONG)(1.0f / m_FrameRate * m_Frequency.QuadPart);
-    }
+	void RenderApp::SetFrameRate(int frameRate)
+	{
+		m_FrameRate = frameRate;
+		m_FrameInterval.QuadPart = (LONGLONG)(1.0f / m_FrameRate * m_Frequency.QuadPart);
+	}
 
-    void RenderApp::InitFrequencyAndFrameRate()
-    {
-        QueryPerformanceFrequency(&m_Frequency);
+	void RenderApp::InitFrequencyAndFrameRate()
+	{
+		QueryPerformanceFrequency(&m_Frequency);
 		SetFrameRate(60);
-    }
+	}
 }

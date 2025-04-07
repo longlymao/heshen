@@ -10,9 +10,15 @@
 namespace raudio {
 	ChunkType GetChunkType(const ChunkHeader& chunk)
 	{
-		if (chunk.id[0] == 'R' && chunk.id[1] == 'I' && chunk.id[2] == 'F' && chunk.id[3] == 'F') return ChunkType::RIFF;
-		if (chunk.id[0] == 'f' && chunk.id[1] == 'm' && chunk.id[2] == 't' && chunk.id[3] == ' ') return ChunkType::FMT;
-		if (chunk.id[0] == 'd' && chunk.id[1] == 'a' && chunk.id[2] == 't' && chunk.id[3] == 'a') return ChunkType::DATA;
+		if (chunk.id[0] == 'R' && chunk.id[1] == 'I' && chunk.id[2] == 'F' && chunk.id[3] == 'F') {
+			return ChunkType::RIFF;
+		}
+		if (chunk.id[0] == 'f' && chunk.id[1] == 'm' && chunk.id[2] == 't' && chunk.id[3] == ' ') {
+			return ChunkType::FMT;
+		}
+		if (chunk.id[0] == 'd' && chunk.id[1] == 'a' && chunk.id[2] == 't' && chunk.id[3] == 'a') {
+			return ChunkType::DATA;
+		}
 		return ChunkType::UNKNOWN;
 	}
 
