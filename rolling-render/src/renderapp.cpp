@@ -4,42 +4,41 @@
  * MIT License
  */
 
-#include "mainapp.h"
+#include "renderapp.h"
 
 namespace rrender {
-	MainApp::MainApp()
+	RenderApp::RenderApp()
 		: m_FrameRate(0)
 		, m_FrameInterval({ 0 })
 		, m_Frequency({ 0 })
 	{
-		mainWindow = std::make_unique<rrender::MainWindow>();
+		m_Window = std::make_unique<rrender::RenderWindow>();
 	}
 
-	MainApp::~MainApp()
+	RenderApp::~RenderApp()
 	{
-		mainWindow.reset();
+		m_Window.reset();
 	}
 
-	void MainApp::Init()
+	void RenderApp::Init()
 	{
         InitFrequencyAndFrameRate();
-		mainWindow->Init();
+		m_Window->Init();
 	}
 
-	void MainApp::Render()
+	void RenderApp::Render()
 	{
-		mainWindow->Render();
+		m_Window->Render();
 	}
 
-	void MainApp::Update()
+	void RenderApp::Update()
 	{
-		mainWindow->Update();
+		m_Window->Update();
 	}
 
-	void MainApp::MainLoop()
+	void RenderApp::MainLoop()
 	{
         int retCode = 0;
-        bool shouldClose = false;
 
         LARGE_INTEGER nLast;
         LARGE_INTEGER nNow;
@@ -49,7 +48,7 @@ namespace rrender {
         LONGLONG interval = 0LL;
         LONG waitMS = 0L;
 
-        while (!shouldClose)
+        while (!m_Window->WindowShouldClose())
         {
             QueryPerformanceCounter(&nNow);
             interval = nNow.QuadPart - nLast.QuadPart;
@@ -58,6 +57,7 @@ namespace rrender {
             {
                 nLast.QuadPart = nNow.QuadPart;
 				Update();
+                Render();
             }
             else
             {
@@ -68,13 +68,13 @@ namespace rrender {
         }
 	}
 
-    void MainApp::SetFrameRate(int frameRate)
+    void RenderApp::SetFrameRate(int frameRate)
     {
         m_FrameRate = frameRate;
         m_FrameInterval.QuadPart = (LONGLONG)(1.0f / m_FrameRate * m_Frequency.QuadPart);
     }
 
-    void MainApp::InitFrequencyAndFrameRate()
+    void RenderApp::InitFrequencyAndFrameRate()
     {
         QueryPerformanceFrequency(&m_Frequency);
 		SetFrameRate(60);

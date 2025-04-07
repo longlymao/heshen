@@ -1,4 +1,4 @@
-#include "mainapp.h"
+#include "renderapp.h"
 
 static int WINAPI WinMain(
     HINSTANCE hInstance,
@@ -6,7 +6,7 @@ static int WINAPI WinMain(
     LPTSTR lpCmdLine,
     int nCmdShow)
 {
-	rrender::MainApp app;
+	rrender::RenderApp app;
     app.Init();
     app.MainLoop();
     return 0;

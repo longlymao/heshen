@@ -7,14 +7,14 @@
 #pragma once
 
 #include <memory>
-#include "mainwindow.h"
+#include "renderwindow.h"
 
 namespace rrender
 {
-	class MainApp {
+	class RenderApp {
 	public:
-		MainApp(); 
-		~MainApp();
+		RenderApp(); 
+		~RenderApp();
 
 		void Init();
 		void Render();
@@ -28,7 +28,7 @@ namespace rrender
 		void InitFrequencyAndFrameRate();
 
 	private:
-		std::unique_ptr<MainWindow> mainWindow;
+		std::unique_ptr<RenderWindow> m_Window;
 
 		int m_FrameRate;
 		LARGE_INTEGER m_FrameInterval;
