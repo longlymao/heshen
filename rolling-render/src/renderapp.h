@@ -13,7 +13,7 @@ namespace rrender
 {
 	class RenderApp {
 	public:
-		RenderApp(); 
+		RenderApp();
 		~RenderApp();
 
 		void Init();

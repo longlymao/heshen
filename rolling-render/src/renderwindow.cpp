@@ -58,21 +58,21 @@ namespace rrender {
 	{
 		HDC hdc = GetDC(hwnd);
 
-		Texture texture(WIDTH, HEIGHT);
-		heshen::LineTool::DrawLine(&texture, { 0, 0 }, { WIDTH - 1, HEIGHT - 101 });
-		heshen::LineTool::DrawLine(&texture, { WIDTH, 0 }, { 0, HEIGHT - 101 });
+		Texture texture(width, height);
+		heshen::LineTool::DrawLine(&texture, { 0, 0 }, { width - 1, height - 101 });
+		heshen::LineTool::DrawLine(&texture, { width, 0 }, { 0, height - 101 });
 
 		UINT* data = pbmp;
-		for (int y = 0; y < HEIGHT; y++)
+		for (int y = 0; y < height; y++)
 		{
-			for (int x = 0; x < WIDTH; x++)
+			for (int x = 0; x < width; x++)
 			{
 				*data = texture.Get(x, y);
 				data++;
 			}
 		}
 
-		BitBlt(hdc, 0, 0, WIDTH, HEIGHT, memhdc, 0, 0, SRCCOPY);
+		BitBlt(hdc, 0, 0, width, height, memhdc, 0, 0, SRCCOPY);
 
 		ReleaseDC(hwnd, hdc);
 	}
@@ -136,6 +136,12 @@ namespace rrender {
 			NULL,
 			GetModuleHandle(NULL),
 			NULL);
+
+		RECT clientRect;
+		if (GetClientRect(hwnd, &clientRect)) {
+			width = clientRect.right - clientRect.left;
+			height = clientRect.bottom - clientRect.top;
+		}
 	}
 
 	void RenderWindow::ReleaseWindowInstance()
@@ -154,8 +160,8 @@ namespace rrender {
 
 		BITMAPINFOHEADER header = { 0 };
 		header.biSize = sizeof(BITMAPINFOHEADER);
-		header.biWidth = WIDTH;
-		header.biHeight = HEIGHT;
+		header.biWidth = width;
+		header.biHeight = height;
 		header.biPlanes = 1;
 		header.biBitCount = 32;
 		header.biCompression = BI_RGB;
@@ -163,7 +169,7 @@ namespace rrender {
 		PVOID pvBits = NULL;
 		hbmp = CreateDIBSection(NULL, (PBITMAPINFO)&header,
 			DIB_RGB_COLORS, &pvBits, NULL, 0);
-		
+
 		if (hbmp) {
 			holdbmp = (HBITMAP)SelectObject(memhdc, hbmp);
 		}
