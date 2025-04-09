@@ -8,6 +8,8 @@
 
 #include <Windows.h>
 
+#include "image.h"
+
 namespace rrender {
 
 	class RenderWindow
@@ -17,10 +19,15 @@ namespace rrender {
 		~RenderWindow();
 
 		void Init();
-		void Render();
+		void Render(const rmath::Image<unsigned int>& image);
 		void Update();
 
 		bool WindowShouldClose();
+
+		rmath::Rect<int> GetWindowRect() const
+		{
+			return rmath::Rect<int>(0, 0, width, height);
+		}
 
 	private:
 		void RegisterWindowClass();

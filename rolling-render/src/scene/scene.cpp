@@ -1,0 +1,39 @@
+#include "scene.h"
+
+namespace rrender {
+	Scene::Scene()
+	{
+	}
+	Scene::~Scene()
+	{
+		for (auto* world : worlds) {
+			delete world;
+		}
+		worlds.clear();
+	}
+	void Scene::AddWorld(World2D* world)
+	{
+		worlds.push_back(world);
+	}
+	void Scene::Update()
+	{
+		for (auto* world : worlds) {
+			world->Update();
+		}
+	}
+	void Scene::Render()
+	{
+		for (auto* world : worlds) {
+			world->Render();
+			if (renderFunc) {
+				renderFunc(world->GetImage());
+			}
+		}
+	}
+	void Scene::SetResolution(int width, int height)
+	{
+		for (auto* world : worlds) {
+			world->SetResolution(width, height);
+		}
+	}
+}

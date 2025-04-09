@@ -9,6 +9,8 @@
 #include <memory>
 #include "renderwindow.h"
 
+#include "scene/scene.h"
+
 namespace rrender
 {
 	class RenderApp {
@@ -24,6 +26,8 @@ namespace rrender
 
 		void SetFrameRate(int frameRate);
 
+		Scene& GetScene();
+
 	private:
 		void InitFrequencyAndFrameRate();
 
@@ -33,5 +37,7 @@ namespace rrender
 		int m_FrameRate;
 		LARGE_INTEGER m_FrameInterval;
 		LARGE_INTEGER m_Frequency;
+
+		Scene m_Scene;
 	};
 }

@@ -7,16 +7,17 @@
 #pragma once
 
 #include "matrix.h"
+#include "image.h"
 
 namespace rrender {
 	class Camera
 	{
 	public:
-		Matrix4x4 GetViewMatrix() const;
+		rmath::Matrix4x4 GetViewMatrix() const;
 
 	private:
-		VectorF3 eye;
-		VectorF3 target;
-		VectorF3 up;
+		rmath::VectorF3 eye;
+		rmath::VectorF3 target;
+		rmath::VectorF3 up;
 	};
 };

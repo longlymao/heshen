@@ -24,15 +24,24 @@ namespace rrender {
 	{
 		InitFrequencyAndFrameRate();
 		m_Window->Init();
+
+		auto rect = m_Window->GetWindowRect();
+		m_Scene.SetResolution(rect.GetWidth(), rect.GetHeight());
+
+		auto renderFunc = [&](const rmath::Image<unsigned int>& image) {
+			m_Window->Render(image);
+			};
+		m_Scene.SetRenderFunc(renderFunc);
 	}
 
 	void RenderApp::Render()
 	{
-		m_Window->Render();
+		m_Scene.Render();
 	}
 
 	void RenderApp::Update()
 	{
+		m_Scene.Update();
 		m_Window->Update();
 	}
 
@@ -78,5 +87,10 @@ namespace rrender {
 	{
 		QueryPerformanceFrequency(&m_Frequency);
 		SetFrameRate(60);
+	}
+
+	Scene& RenderApp::GetScene()
+	{
+		return m_Scene;
 	}
 }

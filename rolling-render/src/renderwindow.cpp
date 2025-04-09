@@ -9,9 +9,6 @@
 #include <tchar.h>
 #include <assert.h>
 
-#include "texture.h"
-#include "line.h"
-
 #define WIDTH 800
 #define HEIGHT 600
 
@@ -54,20 +51,16 @@ namespace rrender {
 		CreateBitmap();
 	}
 
-	void RenderWindow::Render()
+	void RenderWindow::Render(const rmath::Image<unsigned int>& image)
 	{
 		HDC hdc = GetDC(hwnd);
-
-		Texture texture(width, height);
-		heshen::LineTool::DrawLine(&texture, { 0, 0 }, { width - 1, height - 101 });
-		heshen::LineTool::DrawLine(&texture, { width, 0 }, { 0, height - 101 });
 
 		UINT* data = pbmp;
 		for (int y = 0; y < height; y++)
 		{
 			for (int x = 0; x < width; x++)
 			{
-				*data = texture.Get(x, y);
+				*data = image.Get(x, y);
 				data++;
 			}
 		}
