@@ -35,29 +35,30 @@ namespace rrender {
 
 	void Line::BresenhamX(int x1, int y1, int x2, int y2, rmath::Image<unsigned int>& image) 
 	{
-		int dw = x2 - x1;
-		int dh = y2 - y1;
-
 		int x = x1;
 		int y = y1;
 
-		int yy = y1 * 2 * dw;
+		int dw = x2 - x1;
+		int dh = y2 - y1;
+
+		if (dh < 0) {
+			dw = -dw;
+		}
+
+		int yy = 0;
 		int ee = 0;
 
 		while (x < x2)
 		{
 			x++;
-			int nyy = yy + ee + dh * 2;
-			if (nyy < yy + dw)
-			{
-				ee += dw * 2;
+			if (abs(ee + dh * 2) < abs(dw * 2)) {
+				ee += dh * 2;
 			}
-			else
-			{
-				yy += 2 * dw;
+			else {
+				yy += 2 * abs(dw);
 				ee += 2 * dh - 2 * dw;
 			}
-			y = yy / (2 * dw);
+			y = y1 + yy / (2 * dw);
 
 			image.Set(x, y, 0xFF00FF00);
 		}
@@ -65,29 +66,31 @@ namespace rrender {
 
 	void Line::BresenhamY(int x1, int y1, int x2, int y2, rmath::Image<unsigned int>& image)
 	{
-		int dw = x2 - x1;
-		int dh = y2 - y1;
-
 		int x = x1;
 		int y = y1;
 
-		int xx = x1 * 2 * dh;
+		int dw = x2 - x1;
+		int dh = y2 - y1;
+
+		if (dw < 0) {
+			dh = -dh;
+		}
+
+		int xx = 0;
 		int ee = 0;
 
 		while (y < y2)
 		{
 			y++;
-			int nxx = xx + ee + dw * 2;
-			if (nxx < xx + dh)
-			{
-				ee += dh * 2;
+			if (abs(ee + dw * 2) < abs(dh * 2)) {
+				ee += dw * 2;
 			}
-			else
-			{
-				xx += 2 * dh;
+			else {
+				xx += 2 * abs(dh);
 				ee += 2 * dw - 2 * dh;
 			}
-			x = xx / (2 * dh);
+
+			x = x1 + xx / (2 * dh);
 
 			image.Set(x, y, 0xFF00FF00);
 		}

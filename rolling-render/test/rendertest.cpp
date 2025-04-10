@@ -21,10 +21,18 @@ static int WINAPI WinMain(
 		world->AddLine(line);
 		};
 
-	AddLine(100, 100, 200, 200);
-	AddLine(300, 300, 200, 200);
-	AddLine(300, 100, 200, 200);
-	AddLine(100, 300, 200, 200);
+	AddLine(000, 100, 200, 200);
+	AddLine(400, 300, 200, 200);
+	AddLine(400, 100, 200, 200);
+	AddLine(000, 300, 200, 200);
+
+	AddLine(100, 000, 200, 200);
+	AddLine(300, 400, 200, 200);
+	AddLine(100, 400, 200, 200);
+	AddLine(300, 000, 200, 200);
+
+	AddLine(0, 200, 400, 200);
+	AddLine(200, 400, 200, 0);
 
 	app.GetScene().AddWorld(world);
 
