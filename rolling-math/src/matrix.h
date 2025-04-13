@@ -286,6 +286,19 @@ namespace rmath {
 			}
 			return result;
 		}
+
+		Vector<T, ROW> operator*(const Vector<T, COL>& vector) const
+		{
+			Vector<T, ROW> result;
+			for (size_t i = 0; i < ROW; i++)
+			{
+				for (size_t j = 0; j < COL; j++)
+				{
+					result[i] += data[i][j] * vector[j];
+				}
+			}
+			return result;
+		}
 	};
 
 	using Matrix4x4 = Matrix<float, 4, 4>;

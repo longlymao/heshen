@@ -9,9 +9,6 @@
 #include <tchar.h>
 #include <assert.h>
 
-#define WIDTH 800
-#define HEIGHT 600
-
 namespace rrender {
 
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

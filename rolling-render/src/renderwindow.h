@@ -6,9 +6,28 @@
 
 #pragma once
 
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#if defined(min)
+#undef min
+#endif
+
+#if defined(max)
+#undef max
+#endif
+
+#if defined(near)
+#undef near
+#endif
+
+#if defined(far)
+#undef far
+#endif
 
 #include "image.h"
+
+#define WIDTH 800 + 16
+#define HEIGHT 600 + 40
 
 namespace rrender {
 
@@ -49,8 +68,8 @@ namespace rrender {
 		bool shouldClose = false;
 		int exitCode = 0;
 
-		int width = 800;
-		int height = 600;
+		int width = WIDTH;
+		int height = HEIGHT;
 	};
 
 };

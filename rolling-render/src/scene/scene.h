@@ -28,5 +28,7 @@ namespace rrender {
 	private:
 		std::vector<World2D*> worlds;
 		RenderFunc renderFunc;
+
+		rmath::Rect<int> resolution;
 	};
 }

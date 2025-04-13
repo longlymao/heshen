@@ -14,6 +14,7 @@ namespace rrender {
 	void Scene::AddWorld(World2D* world)
 	{
 		worlds.push_back(world);
+		world->SetResolution(resolution.GetWidth(), resolution.GetHeight());
 	}
 	void Scene::Update()
 	{
@@ -32,8 +33,10 @@ namespace rrender {
 	}
 	void Scene::SetResolution(int width, int height)
 	{
+		resolution = {0, 0, width, height };
+
 		for (auto* world : worlds) {
-			world->SetResolution(width, height);
+			world->SetResolution(resolution.GetWidth(), resolution.GetHeight());
 		}
 	}
 }

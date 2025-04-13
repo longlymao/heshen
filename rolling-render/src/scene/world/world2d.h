@@ -14,6 +14,7 @@
 #include "image.h"
 
 namespace rrender {
+
 	class World2D
 	{
 	public:
@@ -28,6 +29,9 @@ namespace rrender {
 		void SetResolution(int width, int height);
 
 		const rmath::Image<unsigned int>& GetImage() const;
+
+		Camera& GetCamera();
+		rmath::Image<unsigned int>& GetImage();
 
 	private:
 		std::vector<Line*> lines;

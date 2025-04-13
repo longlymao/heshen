@@ -7,6 +7,7 @@
 #pragma once
 
 #include <cmath>
+#include <vector>
 
 namespace rmath {
 	template<typename T>
@@ -53,19 +54,32 @@ namespace rmath {
 	template<typename T>
 	class Image
 	{
-		T* data = nullptr;
+		std::vector<T> data;
 		int width = 0;
 		int height = 0;
 	public:
 		Image(int width, int height)
 			: width(width), height(height)
 		{
-			data = new T[width * height];
-			memset(data, 0, sizeof(T) * width * height);
+			data.resize(width * height);
 		}
 		~Image()
 		{
-			delete[] data;
+		}
+		Image(const Image& other)
+			: width(other.width), height(other.height)
+		{
+			data = other.data;
+		}
+		Image& operator=(const Image& other)
+		{
+			if (this != &other)
+			{
+				width = other.width;
+				height = other.height;
+				data = other.data;
+			}
+			return *this;
 		}
 		T Get(int x, int y) const
 		{
@@ -73,7 +87,9 @@ namespace rmath {
 		}
 		void Set(int x, int y, T value)
 		{
-			data[y * width + x] = value;
+			if (x >= 0 && x < width && y >= 0 && y < height) {
+				data[y * width + x] = value;
+			}
 		}
 		int GetWidth() const
 		{
