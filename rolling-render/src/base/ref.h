@@ -6,11 +6,21 @@
 
 #pragma once
 
+#include <type_traits>
+
 namespace rrender {
 
 	template <typename T> class SharedPtr;
 	template <typename T> class WeakPtr;
 	template <typename T> class EnableShareFromThis;
+
+	template <typename T, typename = void>
+	struct CanEnableShareFromThis : std::false_type {};
+
+	template<typename T>
+	struct CanEnableShareFromThis<T, 
+		std::void_t<decltype(std::declval<T>().ShareFromThis()),
+		std::is_same<SharedPtr<T>, decltype(std::declval<T>().ShareFromThis())>>> : std::true_type {};
 
 	template<typename T>
 	struct ControlBlock
@@ -24,7 +34,7 @@ namespace rrender {
 		}
 
 		~ControlBlock() {
-			delete data;
+			ReleaseData();
 		}
 
 		void AddRef()
@@ -35,7 +45,9 @@ namespace rrender {
 		void Release()
 		{
 			refCount--;
-			CheckRefCount();
+			if (refCount == 0) {
+				ReleaseData();
+			}
 		}
 
 		void AddWeakRef() {
@@ -44,7 +56,9 @@ namespace rrender {
 
 		void ReleaseWeak() {
 			weakCount--;
-			CheckRefCount();
+			if (weakCount == 0 && refCount == 0) {
+				delete this;
+			}
 		}
 
 		bool IsAlive() const
@@ -53,16 +67,21 @@ namespace rrender {
 		}
 
 	private:
+		void ReleaseData() {
+			if (data) {
+				T* temp = data;
+				data = nullptr;
+				delete temp;
+			}
+		}
+
+	private:
 		int refCount = 0;
 		int weakCount = 0;
 		T* data = nullptr;
 
-		void CheckRefCount()
-		{
-			if (refCount == 0 && weakCount == 0) {
-				delete this;
-			}
-		}
+		friend class SharedPtr<T>;
+		friend class WeakPtr<T>;
 	};
 
 	template<typename T>
@@ -76,6 +95,10 @@ namespace rrender {
 		explicit SharedPtr(T* ptr) {
 			if (ptr != nullptr) {
 				block = new ControlBlock<T>(ptr);
+
+				if constexpr (CanEnableShareFromThis<T>::value) {
+					block->data->m_Wptr = WeakPtr<T>(*this);
+				}
 			}
 		}
 
@@ -144,7 +167,15 @@ namespace rrender {
 		}
 
 		operator bool() const {
-			return block && block.data != nullptr;
+			return block && block->data != nullptr;
+		}
+
+		T* operator->() const {
+			return block->data;
+		}
+
+		T& operator*() const {
+			return *block->data;
 		}
 
 	private:
@@ -161,6 +192,8 @@ namespace rrender {
 				block->Release();
 			}
 		}
+
+		friend class WeakPtr<T>;
 	};
 
 	template<typename T>
@@ -246,6 +279,14 @@ namespace rrender {
 				&& block->IsAlive();
 		}
 
+		T* operator->() const {
+			return block->data;
+		}
+
+		T& operator*() const {
+			return *block->data;
+		}
+
 	private:
 		ControlBlock<T>* block = nullptr;
 
@@ -260,6 +301,8 @@ namespace rrender {
 				block->ReleaseWeak();
 			}
 		}
+
+		friend class SharedPtr<T>;
 	};
 
 	template<typename T>
@@ -270,13 +313,13 @@ namespace rrender {
 		EnableShareFromThis(EnableShareFromThis&&) = delete;
 		EnableShareFromThis& operator=(const EnableShareFromThis&) = delete;
 		EnableShareFromThis& operator=(EnableShareFromThis&&) = delete;
-		virtual ~EnableShareFromThis() {
-			m_Wptr.Release();
-		}
+		virtual ~EnableShareFromThis() {}
 		SharedPtr<T> ShareFromThis() {
 			return SharedPtr<T>(m_Wptr);
 		}
 	private:
 		WeakPtr<T> m_Wptr;
+
+		friend class SharedPtr<T>;
 	};
 };
