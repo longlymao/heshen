@@ -13,6 +13,8 @@
 #include "scene/primitive/line.h"
 #include "image.h"
 
+#include "scene/node/node2d.h"
+
 namespace rrender {
 
 	class World2D
@@ -33,9 +35,13 @@ namespace rrender {
 		Camera& GetCamera();
 		rmath::Image<unsigned int>& GetImage();
 
+		void AddNode(SharedPtr<Node2D> node);
+
 	private:
 		std::vector<Line*> lines;
 		Camera camera;
 		rmath::Image<unsigned int> image;
+
+		SharedPtr<Node2D> rootNode;
 	};
 }

@@ -7,6 +7,7 @@
 #pragma once
 
 #include <type_traits>
+#include <memory>
 
 namespace rrender {
 
@@ -143,6 +144,12 @@ namespace rrender {
 			return *this;
 		}
 
+		template <class T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
+		SharedPtr(const SharedPtr<T2>& other) noexcept {
+			block = reinterpret_cast<decltype(block)>(other.block);
+			Retain();
+		}
+
 		bool operator==(const SharedPtr& other) {
 			if (block == nullptr && other.block == nullptr) {
 				return true;
@@ -194,6 +201,7 @@ namespace rrender {
 		}
 
 		friend class WeakPtr<T>;
+		friend class SharedPtr;
 	};
 
 	template<typename T>
@@ -230,6 +238,28 @@ namespace rrender {
 
 		WeakPtr& operator=(const SharedPtr<T>& other) {
 			if (this != &other) {
+				Release();
+				block = other.block;
+				Retain();
+			}
+			return *this;
+		}
+
+		template <class T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
+		WeakPtr(const SharedPtr<T2>& other) noexcept {
+			block = reinterpret_cast<decltype(block)>(other.block);
+			Retain();
+		}
+
+		template <class T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
+		WeakPtr(const WeakPtr<T2>& other) noexcept {
+			block = reinterpret_cast<decltype(block)>(other.block);
+			Retain();
+		}
+
+		template <class T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
+		WeakPtr& operator=(WeakPtr<T2>& other) {
+			if (reinterpret_cast<void*>(this) != reinterpret_cast<void*>(&other)) {
 				Release();
 				block = other.block;
 				Retain();
@@ -303,6 +333,7 @@ namespace rrender {
 		}
 
 		friend class SharedPtr<T>;
+		friend class WeakPtr;
 	};
 
 	template<typename T>
@@ -321,5 +352,7 @@ namespace rrender {
 		WeakPtr<T> m_Wptr;
 
 		friend class SharedPtr<T>;
+
+		template <typename U> friend class SharedPtr;
 	};
 };

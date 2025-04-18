@@ -140,16 +140,25 @@ namespace rmath {
 	template<typename T, size_t ROW, size_t COL>
 	class Matrix
 	{
+		using thisType = Matrix<T, ROW, COL>;
+
 		T data[ROW][COL];
 	public:
 		Matrix()
 		{
 			memset(data, 0, ROW * COL * sizeof(T));
 		}
+
+		~Matrix() = default;
+
+		Matrix(const thisType& other) = default;
+		thisType& operator=(const thisType& other) = default;
+
 		T* operator[](size_t index)
 		{
 			return data[index];
 		}
+
 		const T* operator[](size_t index) const
 		{
 			return data[index];
@@ -271,13 +280,16 @@ namespace rmath {
 			}
 			return *this;
 		}
-		Matrix<T, ROW, COL> operator*(const Matrix<T, COL, ROW>& other) const
+
+		template<size_t COL2>
+		thisType operator*(const Matrix<T, COL, COL2>& other) const
 		{
-			Matrix<T, ROW, ROW> result;
+			Matrix<T, ROW, COL2> result;
 			for (size_t i = 0; i < ROW; i++)
 			{
-				for (size_t j = 0; j < ROW; j++)
+				for (size_t j = 0; j < COL2; j++)
 				{
+					result[i][j] = 0;
 					for (size_t k = 0; k < COL; k++)
 					{
 						result[i][j] += data[i][k] * other[k][j];
@@ -298,6 +310,21 @@ namespace rmath {
 				}
 			}
 			return result;
+		}
+
+		constexpr static auto Identity() {
+			thisType mat;
+			for (size_t i = 0; i < ROW; i++)
+			{
+				for (size_t j = 0; j < COL; j++)
+				{
+					if (i == j)
+					{
+						mat[i][j] = 1;
+					}
+				}
+			}
+			return mat;
 		}
 	};
 

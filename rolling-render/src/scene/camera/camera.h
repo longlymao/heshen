@@ -24,6 +24,7 @@ namespace rrender {
 		rmath::Matrix4x4 GetViewProjectionMatrix() const;
 	
 		rmath::Matrix4x4 GetOrthgraphicMatrix() const;
+		rmath::Matrix4x4 GetOrthgraphicMatrix2() const;
 
 		void SetEye(const rmath::VectorF3& e);
 		void SetTarget(const rmath::VectorF3& t);

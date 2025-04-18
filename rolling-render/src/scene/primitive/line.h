@@ -8,6 +8,7 @@
 
 #include "matrix.h"
 #include "image.h"
+#include "base/color.h"
 
 namespace rrender
 {
@@ -22,9 +23,15 @@ namespace rrender
 
 		void SetWorld(World2D* world);
 
+		void SetColor(const Color& color) {
+			this->color = color;
+		}
+
 	private:
 		rmath::VectorF4 pos1;
 		rmath::VectorF4 pos2;
+
+		Color color = Color(0xFFFFFFFF);
 
 		World2D* m_World = nullptr;
 
