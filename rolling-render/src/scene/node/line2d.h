@@ -33,16 +33,22 @@ namespace rrender {
 		void SetPos1(float x, float y);
 		void SetPos2(float x, float y);
 
+		void SetColor(const Color& color);
+		void SetColor1(const Color& color);
+		void SetColor2(const Color& color);
+
 	private:
 		rmath::VectorF4 pos1;
 		rmath::VectorF4 pos2;
 		Color color = Color::WHITE;
+		Color color1 = Color::WHITE;
+		Color color2 = Color::WHITE;
 
 		void VertexShader(rmath::Matrix4x4& modelViewTransform);
 		void FragmentShader();
 
-		void BresenhamX(int x1, int y1, int x2, int y2);
-		void BresenhamY(int x1, int y1, int x2, int y2);
+		void BresenhamX(int x1, int y1, int x2, int y2, Color color1, Color color2);
+		void BresenhamY(int x1, int y1, int x2, int y2, Color color1, Color color2);
 
 		rmath::VectorF4 tempPos1;
 		rmath::VectorF4 tempPos2;

@@ -38,6 +38,22 @@ namespace rrender {
 		pos2[3] = 1;
 	}
 
+	void Line2D::SetColor(const Color& color)
+	{
+		color1 = color;
+		color2 = color;
+	}
+
+	void Line2D::SetColor1(const Color& color)
+	{
+		color1 = color;
+	}
+
+	void Line2D::SetColor2(const Color& color)
+	{
+		color2 = color;
+	}
+
 	void Line2D::VertexShader(rmath::Matrix4x4& modelViewTransform)
 	{
 		tempPos1 = modelViewTransform * pos1;
@@ -53,27 +69,25 @@ namespace rrender {
 
 		if (abs(y2 - y1) > abs(x2 - x1)) {
 			if (y1 > y2) {
-				BresenhamY(x2, y2, x1, y1);
+				BresenhamY(x2, y2, x1, y1, color2, color1);
 			}
 			else {
-				BresenhamY(x1, y1, x2, y2);
+				BresenhamY(x1, y1, x2, y2, color1, color2);
 			}
 		}
 		else {
 			if (x1 > x2) {
-				BresenhamX(x2, y2, x1, y1);
+				BresenhamX(x2, y2, x1, y1, color2, color1);
 			}
 			else {
-				BresenhamX(x1, y1, x2, y2);
+				BresenhamX(x1, y1, x2, y2, color1, color2);
 			}
 		}
 	}
 
-	void Line2D::BresenhamX(int x1, int y1, int x2, int y2)
+	void Line2D::BresenhamX(int x1, int y1, int x2, int y2, Color color1, Color color2)
 	{
 		auto& image = m_World->GetImage();
-
-		uint32_t uColor = color.ToARGB();
 
 		int x = x1;
 		int y = y1;
@@ -84,7 +98,7 @@ namespace rrender {
 
 		int ee = 0;
 
-		image.Set(x, y, uColor);
+		image.Set(x, y, color1.ToARGB());
 
 		while (x < x2)
 		{
@@ -97,14 +111,15 @@ namespace rrender {
 				ee += 2 * dh - 2 * dw;
 			}
 
-			image.Set(x, y, uColor);
+			float t = static_cast<float>(x - x1) / (x2 - x1);
+			Color color = Color::Lerp(color1, color2, t);
+
+			image.Set(x, y, color.ToARGB());
 		}
 	}
-	void Line2D::BresenhamY(int x1, int y1, int x2, int y2)
+	void Line2D::BresenhamY(int x1, int y1, int x2, int y2, Color color1, Color color2)
 	{
 		auto& image = m_World->GetImage();
-
-		uint32_t uColor = color.ToARGB();
 
 		int x = x1;
 		int y = y1;
@@ -115,7 +130,7 @@ namespace rrender {
 
 		int ee = 0;
 
-		image.Set(x, y, uColor);
+		image.Set(x, y, color1.ToARGB());
 
 		while (y < y2)
 		{
@@ -128,7 +143,10 @@ namespace rrender {
 				ee += 2 * dw - 2 * dh;
 			}
 
-			image.Set(x, y, uColor);
+			float t = static_cast<float>(y - y1) / (y2 - y1);
+			Color color = Color::Lerp(color1, color2, t);
+
+			image.Set(x, y, color.ToARGB());
 		}
 	}
 };

@@ -30,12 +30,15 @@ static int WINAPI WinMain(
 	//	world->AddLine(line);
 	//	};
 
-	auto AddLine = [&](int x1, int y1, int z1, int x2, int y2, int z2, rrender::Color color = rrender::Color::WHITE) {
+	auto AddLine = [&](int x1, int y1, int z1, int x2, int y2, int z2, 
+		rrender::Color color1 = rrender::Color::WHITE, rrender::Color color2 = rrender::Color::WHITE) {
 		rrender::SharedPtr<rrender::Line2D> line = rrender::Line2D::create();
 		line->SetPosition(70, 130);
 		line->SetPos1(x1, y1);
 		line->SetPos2(x2, y2);
 		world->AddNode(line);
+		line->SetColor1(color1);
+		line->SetColor2(color2);
 
 		rrender::SharedPtr<rrender::Line2D> line2 = rrender::Line2D::create();
 		line2->SetPosition(10, 10);
@@ -43,12 +46,14 @@ static int WINAPI WinMain(
 		line2->SetPos1(x1, y1);
 		line2->SetPos2(x2, y2);
 		line->AddChild(line2);
+		line2->SetColor1(color1);
+		line2->SetColor2(color2);
 		};
 
-	AddLine(0, 0, 0, 0, 200, 0);
-	AddLine(0, 0, 0, 200, 0, 0);
-	AddLine(200, 200, 0, 0, 200, 0);
-	AddLine(200, 200, 0, 200, 0, 0);
+	AddLine(0, 0, 0, 0, 200, 0, rrender::Color::RED, rrender::Color::BLUE);
+	AddLine(0, 0, 0, 200, 0, 0, rrender::Color::RED, rrender::Color::BLUE);
+	AddLine(200, 200, 0, 0, 200, 0, rrender::Color::RED, rrender::Color::BLUE);
+	AddLine(200, 200, 0, 200, 0, 0, rrender::Color::RED, rrender::Color::BLUE);
 
 	//rrender::SharedPtr<rrender::Line> line = rrender::SharedPtr<rrender::Line>(new rrender::Line());
 
