@@ -6,7 +6,7 @@
 
 #include "filehelper.h"
 
-namespace rutils {
+namespace rolling {
 	size_t GetRemainingSize(std::ifstream& stream)
 	{
 		if (!stream) {

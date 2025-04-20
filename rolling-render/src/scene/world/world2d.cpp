@@ -1,6 +1,6 @@
 #include "world2d.h"
 
-namespace rrender {
+namespace rolling {
 	World2D::World2D():
 		image(800, 600)
 	{
@@ -21,7 +21,7 @@ namespace rrender {
 			line->Render();
 		}
 
-		rmath::Matrix4x4 modelViewTransform = camera.GetViewMatrix();
+		rolling::Matrix4x4 modelViewTransform = camera.GetViewMatrix();
 		rootNode->Update(modelViewTransform);
 	}
 	void World2D::Update()
@@ -34,16 +34,16 @@ namespace rrender {
 	}
 	void World2D::SetResolution(int width, int height)
 	{
-		image = rmath::Image<unsigned int>(width, height);
+		image = rolling::Image<unsigned int>(width, height);
 		camera.SetAspect(static_cast<float>(width) / static_cast<float>(height));
 		camera.SetFov(std::numbers::pi / 2);
 		camera.SetNear(1.0f);
 		camera.SetFar(1000.0f);
-		camera.SetEye(rmath::VectorF3(0, 0, -100));
-		camera.SetTarget(rmath::VectorF3(camera.eye[0], camera.eye[1], 0));
-		camera.SetUp(rmath::VectorF3(0, 1, 0)); 
+		camera.SetEye(rolling::VectorF3(0, 0, -100));
+		camera.SetTarget(rolling::VectorF3(camera.eye[0], camera.eye[1], 0));
+		camera.SetUp(rolling::VectorF3(0, 1, 0)); 
 	}
-	const rmath::Image<unsigned int>& World2D::GetImage() const
+	const rolling::Image<unsigned int>& World2D::GetImage() const
 	{
 		return image;
 	}
@@ -51,7 +51,7 @@ namespace rrender {
 	{
 		return camera;
 	}
-	rmath::Image<unsigned int>& World2D::GetImage()
+	rolling::Image<unsigned int>& World2D::GetImage()
 	{
 		return image;
 	}

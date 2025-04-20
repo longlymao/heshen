@@ -9,7 +9,7 @@
 #include <tchar.h>
 #include <assert.h>
 
-namespace rrender {
+namespace rolling {
 
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
@@ -48,7 +48,7 @@ namespace rrender {
 		CreateBitmap();
 	}
 
-	void RenderWindow::Render(const rmath::Image<unsigned int>& image)
+	void RenderWindow::Render(const rolling::Image<unsigned int>& image)
 	{
 		HDC hdc = GetDC(hwnd);
 

@@ -6,13 +6,13 @@
 
 #include "renderapp.h"
 
-namespace rrender {
+namespace rolling {
 	RenderApp::RenderApp()
 		: m_FrameRate(0)
 		, m_FrameInterval({ 0 })
 		, m_Frequency({ 0 })
 	{
-		m_Window = std::make_unique<rrender::RenderWindow>();
+		m_Window = std::make_unique<rolling::RenderWindow>();
 	}
 
 	RenderApp::~RenderApp()
@@ -28,7 +28,7 @@ namespace rrender {
 		auto rect = m_Window->GetWindowRect();
 		m_Scene.SetResolution(rect.GetWidth(), rect.GetHeight());
 
-		auto renderFunc = [&](const rmath::Image<unsigned int>& image) {
+		auto renderFunc = [&](const rolling::Image<unsigned int>& image) {
 			m_Window->Render(image);
 			};
 		m_Scene.SetRenderFunc(renderFunc);

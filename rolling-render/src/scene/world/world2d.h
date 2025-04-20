@@ -15,7 +15,7 @@
 
 #include "scene/node/node2d.h"
 
-namespace rrender {
+namespace rolling {
 
 	class World2D
 	{
@@ -30,17 +30,17 @@ namespace rrender {
 
 		void SetResolution(int width, int height);
 
-		const rmath::Image<unsigned int>& GetImage() const;
+		const rolling::Image<unsigned int>& GetImage() const;
 
 		Camera& GetCamera();
-		rmath::Image<unsigned int>& GetImage();
+		rolling::Image<unsigned int>& GetImage();
 
 		void AddNode(SharedPtr<Node2D> node);
 
 	private:
 		std::vector<Line*> lines;
 		Camera camera;
-		rmath::Image<unsigned int> image;
+		rolling::Image<unsigned int> image;
 
 		SharedPtr<Node2D> rootNode;
 	};

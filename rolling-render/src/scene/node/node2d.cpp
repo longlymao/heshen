@@ -1,6 +1,6 @@
 #include "node2d.h"
 
-namespace rrender {
+namespace rolling {
 	Node2D::Node2D() {
 
 	}
@@ -12,9 +12,9 @@ namespace rrender {
 		m_Children.clear();
 	}
 
-	void Node2D::Update(rmath::Matrix4x4& modelViewTransform)
+	void Node2D::Update(rolling::Matrix4x4& modelViewTransform)
 	{
-		rmath::Matrix4x4 newModelViewTransform = modelViewTransform * GetLocalTransform();
+		rolling::Matrix4x4 newModelViewTransform = modelViewTransform * GetLocalTransform();
 		Render(newModelViewTransform);
 
 		for (auto& child : m_Children) {
@@ -22,7 +22,7 @@ namespace rrender {
 		}
 	}
 
-	void Node2D::Render(rmath::Matrix4x4& modelViewTransform)
+	void Node2D::Render(rolling::Matrix4x4& modelViewTransform)
 	{
 	}
 
@@ -52,18 +52,18 @@ namespace rrender {
 		}
 	}
 
-	rmath::Matrix4x4 Node2D::GetLocalTransform()
+	rolling::Matrix4x4 Node2D::GetLocalTransform()
 	{
 		if (m_LocalTransformDirty) {
-			m_LocalTransform = rmath::Matrix4x4::Identity();
+			m_LocalTransform = rolling::Matrix4x4::Identity();
 			m_LocalTransformDirty = false;
 
-			rmath::Matrix4x4 translation = rmath::Matrix4x4::Identity();
+			rolling::Matrix4x4 translation = rolling::Matrix4x4::Identity();
 			translation.SetColumn(3, m_LocalPosition);
 
-			rmath::Matrix4x4 rotation = rmath::Matrix4x4::Identity();
+			rolling::Matrix4x4 rotation = rolling::Matrix4x4::Identity();
 
-			rmath::Matrix4x4 scale = rmath::Matrix4x4::Identity();
+			rolling::Matrix4x4 scale = rolling::Matrix4x4::Identity();
 			scale[0][0] = m_LocalScale[0];
 			scale[1][1] = m_LocalScale[1];
 

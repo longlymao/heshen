@@ -11,7 +11,7 @@
 #include "base/ref.h"
 #include "matrix.h"
 
-namespace rrender {
+namespace rolling {
 
 	class World2D;
 
@@ -32,14 +32,14 @@ namespace rrender {
 		Node2D& operator=(const Node2D&) = delete;
 		Node2D& operator=(Node2D&&) = delete;
 
-		virtual void Update(rmath::Matrix4x4& modelViewTransform);
-		virtual void Render(rmath::Matrix4x4& modelViewTransform);
+		virtual void Update(rolling::Matrix4x4& modelViewTransform);
+		virtual void Render(rolling::Matrix4x4& modelViewTransform);
 
 		void AddChild(SharedPtr<Node2D> child);
 		void RemoveChild(SharedPtr<Node2D> child);
 		void SetParent(WeakPtr<Node2D> parent);
 
-		rmath::Matrix4x4 GetLocalTransform();
+		rolling::Matrix4x4 GetLocalTransform();
 		void SetPosition(float x, float y);
 		void SetScale(float x, float y);
 
@@ -48,15 +48,15 @@ namespace rrender {
 		}
 
 	protected:
-		std::vector<rrender::SharedPtr<Node2D>> m_Children;
-		rrender::WeakPtr<Node2D> m_Parent;
+		std::vector<rolling::SharedPtr<Node2D>> m_Children;
+		rolling::WeakPtr<Node2D> m_Parent;
 		World2D* m_World = nullptr;
 
-		rmath::Matrix4x4 m_LocalTransform;
+		rolling::Matrix4x4 m_LocalTransform;
 		bool m_LocalTransformDirty = true;
 
-		rmath::VectorF4 m_LocalPosition = { 0, 0, 0, 1 };
-		rmath::VectorF4 m_LocalScale = { 1, 1, 1, 1 };
-		rmath::VectorF4 m_LocalRotation = { 0, 0, 0, 1 };
+		rolling::VectorF4 m_LocalPosition = { 0, 0, 0, 1 };
+		rolling::VectorF4 m_LocalScale = { 1, 1, 1, 1 };
+		rolling::VectorF4 m_LocalRotation = { 0, 0, 0, 1 };
 	};
 };

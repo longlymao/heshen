@@ -3,7 +3,7 @@
 
 int main()
 {
-	raudio::WaveReader reader;
+	rolling::WaveReader reader;
 	reader.Load("test.wav");
 	std::cout << "Hello, World!" << std::endl;
 	return 0;

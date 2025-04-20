@@ -11,7 +11,7 @@
 #include <filesystem>
 #include <fstream>
 
-namespace raudio {
+namespace rolling {
 	enum class ChunkType {
 		RIFF,
 		FMT,

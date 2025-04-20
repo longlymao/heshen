@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace raudio {
+namespace rolling {
 
 	enum class AudioChannel {
 		MONO = 1,

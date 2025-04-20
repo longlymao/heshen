@@ -14,25 +14,25 @@ static int WINAPI WinMain(
 	LPTSTR lpCmdLine,
 	int nCmdShow)
 {
-	rrender::RenderApp app;
+	rolling::RenderApp app;
 	app.Init();
 	app.SetFrameRate(60);
 
-	std::shared_ptr<rrender::Camera> c;
+	std::shared_ptr<rolling::Camera> c;
 
-	rrender::World2D* world = new rrender::World2D();
+	rolling::World2D* world = new rolling::World2D();
 
-	//auto AddLine = [&](int x1, int y1, int z1, int x2, int y2, int z2, rrender::Color color = rrender::Color::WHITE) {
-	//	rrender::Line* line = new rrender::Line();
-	//	line->SetPos1(rmath::VectorF3(x1, y1, z1));
-	//	line->SetPos2(rmath::VectorF3(x2, y2, z2));
+	//auto AddLine = [&](int x1, int y1, int z1, int x2, int y2, int z2, rolling::Color color = rolling::Color::WHITE) {
+	//	rolling::Line* line = new rolling::Line();
+	//	line->SetPos1(rolling::VectorF3(x1, y1, z1));
+	//	line->SetPos2(rolling::VectorF3(x2, y2, z2));
 	//	line->SetColor(color);
 	//	world->AddLine(line);
 	//	};
 
 	auto AddLine = [&](int x1, int y1, int z1, int x2, int y2, int z2, 
-		rrender::Color color1 = rrender::Color::WHITE, rrender::Color color2 = rrender::Color::WHITE) {
-		rrender::SharedPtr<rrender::Line2D> line = rrender::Line2D::create();
+		rolling::Color color1 = rolling::Color::WHITE, rolling::Color color2 = rolling::Color::WHITE) {
+		rolling::SharedPtr<rolling::Line2D> line = rolling::Line2D::create();
 		line->SetPosition(70, 130);
 		line->SetPos1(x1, y1);
 		line->SetPos2(x2, y2);
@@ -40,7 +40,7 @@ static int WINAPI WinMain(
 		line->SetColor1(color1);
 		line->SetColor2(color2);
 
-		rrender::SharedPtr<rrender::Line2D> line2 = rrender::Line2D::create();
+		rolling::SharedPtr<rolling::Line2D> line2 = rolling::Line2D::create();
 		line2->SetPosition(10, 10);
 		line2->SetScale(2, 2);
 		line2->SetPos1(x1, y1);
@@ -50,12 +50,12 @@ static int WINAPI WinMain(
 		line2->SetColor2(color2);
 		};
 
-	AddLine(0, 0, 0, 0, 200, 0, rrender::Color::RED, rrender::Color::BLUE);
-	AddLine(0, 0, 0, 200, 0, 0, rrender::Color::RED, rrender::Color::BLUE);
-	AddLine(200, 200, 0, 0, 200, 0, rrender::Color::RED, rrender::Color::BLUE);
-	AddLine(200, 200, 0, 200, 0, 0, rrender::Color::RED, rrender::Color::BLUE);
+	AddLine(0, 0, 0, 0, 200, 0, rolling::Color::RED, rolling::Color::BLUE);
+	AddLine(0, 0, 0, 200, 0, 0, rolling::Color::RED, rolling::Color::BLUE);
+	AddLine(200, 200, 0, 0, 200, 0, rolling::Color::RED, rolling::Color::BLUE);
+	AddLine(200, 200, 0, 200, 0, 0, rolling::Color::RED, rolling::Color::BLUE);
 
-	//rrender::SharedPtr<rrender::Line> line = rrender::SharedPtr<rrender::Line>(new rrender::Line());
+	//rolling::SharedPtr<rolling::Line> line = rolling::SharedPtr<rolling::Line>(new rolling::Line());
 
 	//AddLine(0, -100, 100, 0, 100, 100);
 	//AddLine(-100, 0, 100, 100, 0, 100);
@@ -93,11 +93,11 @@ static int WINAPI WinMain(
 	//AddLine(200, 200, 0, 200, 200, 200);
 	//AddLine(0, 200, 0, 0, 200, 200);
 	
-	//auto AddLine2D = [&](int x1, int y1, int x2, int y2, rrender::Color color = rrender::Color::WHITE) {
+	//auto AddLine2D = [&](int x1, int y1, int x2, int y2, rolling::Color color = rolling::Color::WHITE) {
 	//	AddLine(x1, y1, 0, x2, y2, 0, color);
 	//	};
 
-	//AddLine2D(000, 100, 200, 200, rrender::Color::GREEN);
+	//AddLine2D(000, 100, 200, 200, rolling::Color::GREEN);
 	//AddLine2D(400, 300, 200, 200);
 	//AddLine2D(400, 100, 200, 200);
 	//AddLine2D(000, 300, 200, 200);

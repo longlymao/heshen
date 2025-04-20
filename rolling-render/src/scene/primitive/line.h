@@ -10,7 +10,7 @@
 #include "image.h"
 #include "base/color.h"
 
-namespace rrender
+namespace rolling
 {
 	class World2D;
 
@@ -18,8 +18,8 @@ namespace rrender
 	public:
 		void Render();
 		void Update();
-		void SetPos1(const rmath::VectorF3& pos);
-		void SetPos2(const rmath::VectorF3& pos);
+		void SetPos1(const rolling::VectorF3& pos);
+		void SetPos2(const rolling::VectorF3& pos);
 
 		void SetWorld(World2D* world);
 
@@ -28,21 +28,21 @@ namespace rrender
 		}
 
 	private:
-		rmath::VectorF4 pos1;
-		rmath::VectorF4 pos2;
+		rolling::VectorF4 pos1;
+		rolling::VectorF4 pos2;
 
 		Color color = Color(0xFFFFFFFF);
 
 		World2D* m_World = nullptr;
 
 	private:
-		void BresenhamX(int x1, int y1, int x2, int y2, rmath::Image<unsigned int>& image);
-		void BresenhamY(int x1, int y1, int x2, int y2, rmath::Image<unsigned int>& image);
+		void BresenhamX(int x1, int y1, int x2, int y2, rolling::Image<unsigned int>& image);
+		void BresenhamY(int x1, int y1, int x2, int y2, rolling::Image<unsigned int>& image);
 
 		void VertexShader();
 		void FragmentShader();
 
-		rmath::VectorF4 tempPos1;
-		rmath::VectorF4 tempPos2;
+		rolling::VectorF4 tempPos1;
+		rolling::VectorF4 tempPos2;
 	};
 }

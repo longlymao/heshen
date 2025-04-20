@@ -11,8 +11,8 @@
 
 #include "world/world2d.h"
 
-namespace rrender {
-	using RenderFunc = std::function<void(const rmath::Image<unsigned int>&)>;
+namespace rolling {
+	using RenderFunc = std::function<void(const rolling::Image<unsigned int>&)>;
 
 	class Scene {
 	public:
@@ -29,6 +29,6 @@ namespace rrender {
 		std::vector<World2D*> worlds;
 		RenderFunc renderFunc;
 
-		rmath::Rect<int> resolution;
+		rolling::Rect<int> resolution;
 	};
 }

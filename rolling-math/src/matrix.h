@@ -10,7 +10,7 @@
 #include <cmath>
 #include <utility>
 
-namespace rmath {
+namespace rolling {
 
 	template<typename T, size_t SIZE>
 	class Vector

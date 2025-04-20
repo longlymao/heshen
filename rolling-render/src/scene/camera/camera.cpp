@@ -6,13 +6,13 @@
 
 #include "camera.h"
 
-namespace rrender {
+namespace rolling {
 	Camera::Camera():
 		m_world(nullptr)
 	{
-		eye = rmath::VectorF3(0, 0, 0);
-		target = rmath::VectorF3(0, 0, -1);
-		up = rmath::VectorF3(0, 1, 0);
+		eye = rolling::VectorF3(0, 0, 0);
+		target = rolling::VectorF3(0, 0, -1);
+		up = rolling::VectorF3(0, 1, 0);
 		fov = std::numbers::pi / 3;
 		aspect = 4.0f / 3.0f;
 		near = 0.1f;
@@ -21,26 +21,26 @@ namespace rrender {
 	Camera::~Camera()
 	{
 	}
-	rmath::Matrix4x4 Camera::GetViewMatrix() const
+	rolling::Matrix4x4 Camera::GetViewMatrix() const
 	{
-		rmath::VectorF3 _forward = (target - eye).Normalize();
-		rmath::VectorF3 _right = up.Cross(_forward).Normalize();
-		rmath::VectorF3 _up = _forward.Cross(_right).Normalize();
+		rolling::VectorF3 _forward = (target - eye).Normalize();
+		rolling::VectorF3 _right = up.Cross(_forward).Normalize();
+		rolling::VectorF3 _up = _forward.Cross(_right).Normalize();
 
-		rmath::Matrix4x4 viewMatrix;
+		rolling::Matrix4x4 viewMatrix;
 		viewMatrix.SetRow(0, _right);
 		viewMatrix.SetRow(1, _up);
 		viewMatrix.SetRow(2, -_forward);
-		viewMatrix.SetRow(3, rmath::VectorF4(0, 0, 0, 1));
+		viewMatrix.SetRow(3, rolling::VectorF4(0, 0, 0, 1));
 		viewMatrix[0][3] = -_right.Dot(eye);
 		viewMatrix[1][3] = -_up.Dot(eye);
 		viewMatrix[2][3] = _forward.Dot(eye);
 
 		return viewMatrix;
 	}
-	rmath::Matrix4x4 Camera::GetProjectionMatrix() const
+	rolling::Matrix4x4 Camera::GetProjectionMatrix() const
 	{
-		rmath::Matrix4x4 projMatrix;
+		rolling::Matrix4x4 projMatrix;
 		//float f = 1.0f / std::tan(fov / 2.0f);
 		//projMatrix[0][0] = f / aspect;
 		//projMatrix[1][1] = f;
@@ -56,13 +56,13 @@ namespace rrender {
 
 		return projMatrix;
 	}
-	rmath::Matrix4x4 Camera::GetViewProjectionMatrix() const
+	rolling::Matrix4x4 Camera::GetViewProjectionMatrix() const
 	{
 		return GetProjectionMatrix() * GetViewMatrix();
 	}
-	rmath::Matrix4x4 Camera::GetOrthgraphicMatrix() const
+	rolling::Matrix4x4 Camera::GetOrthgraphicMatrix() const
 	{
-		rmath::Matrix4x4 orthographicMatrix;
+		rolling::Matrix4x4 orthographicMatrix;
 
 		float left = - 400;
 		float right = 400;
@@ -81,9 +81,9 @@ namespace rrender {
 
 		return orthographicMatrix;
 	}
-	rmath::Matrix4x4 Camera::GetOrthgraphicMatrix2() const
+	rolling::Matrix4x4 Camera::GetOrthgraphicMatrix2() const
 	{
-		rmath::Matrix4x4 orthographicMatrix;
+		rolling::Matrix4x4 orthographicMatrix;
 		float top = near * tan(fov / 2.0f);
 		float bottom = -top;
 		float left = bottom * aspect;
@@ -101,15 +101,15 @@ namespace rrender {
 
 		return orthographicMatrix;
 	}
-	void Camera::SetEye(const rmath::VectorF3& e)
+	void Camera::SetEye(const rolling::VectorF3& e)
 	{
 		eye = e;
 	}
-	void Camera::SetTarget(const rmath::VectorF3& t)
+	void Camera::SetTarget(const rolling::VectorF3& t)
 	{
 		target = t;
 	}
-	void Camera::SetUp(const rmath::VectorF3& u)
+	void Camera::SetUp(const rolling::VectorF3& u)
 	{
 		up = u;
 	}

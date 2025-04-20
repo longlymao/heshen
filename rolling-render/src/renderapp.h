@@ -11,7 +11,7 @@
 
 #include "scene/scene.h"
 
-namespace rrender
+namespace rolling
 {
 	class RenderApp {
 	public:

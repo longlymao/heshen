@@ -9,7 +9,7 @@
 #include <cmath>
 #include <vector>
 
-namespace rmath {
+namespace rolling {
 	template<typename T>
 	class Rect
 	{

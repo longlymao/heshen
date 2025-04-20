@@ -7,7 +7,7 @@
 #include "wavereader.h"
 #include "filehelper.h"
 
-namespace raudio {
+namespace rolling {
 	ChunkType GetChunkType(const ChunkHeader& chunk)
 	{
 		if (chunk.id[0] == 'R' && chunk.id[1] == 'I' && chunk.id[2] == 'F' && chunk.id[3] == 'F') {
@@ -56,13 +56,13 @@ namespace raudio {
 		if (riff.format[0] != 'W' || riff.format[1] != 'A' || riff.format[2] != 'V' || riff.format[3] != 'E') {
 			return false;
 		}
-		if (rutils::GetRemainingSize(stream) + sizeof(riff.format) != riff.size) {
+		if (rolling::GetRemainingSize(stream) + sizeof(riff.format) != riff.size) {
 			return false;
 		}
 		return true;
 	}
 
-	bool raudio::WaveReader::ReadFmt(std::ifstream& stream, const ChunkHeader& chunk)
+	bool rolling::WaveReader::ReadFmt(std::ifstream& stream, const ChunkHeader& chunk)
 	{
 		if (chunk.size != WavFmt::baseSize && chunk.size != sizeof(WavFmt)) {
 			return false;
@@ -84,7 +84,7 @@ namespace raudio {
 		return true;
 	}
 
-	bool raudio::WaveReader::ReadData(std::ifstream& stream, const ChunkHeader& chunk)
+	bool rolling::WaveReader::ReadData(std::ifstream& stream, const ChunkHeader& chunk)
 	{
 		rawData.resize(chunk.size);
 		if (!stream.read(const_cast<char*>(rawData.data()), chunk.size)) {
@@ -93,12 +93,12 @@ namespace raudio {
 		return true;
 	}
 
-	bool raudio::WaveReader::ReadChunk(std::ifstream& stream, ChunkHeader& chunk)
+	bool rolling::WaveReader::ReadChunk(std::ifstream& stream, ChunkHeader& chunk)
 	{
 		if (!stream.read(reinterpret_cast<char*>(&chunk), sizeof(chunk))) {
 			return false;
 		}
-		if (rutils::GetRemainingSize(stream) < chunk.size) {
+		if (rolling::GetRemainingSize(stream) < chunk.size) {
 			return false;
 		}
 		return true;

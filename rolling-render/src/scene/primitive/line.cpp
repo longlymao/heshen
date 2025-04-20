@@ -3,7 +3,7 @@
 #include "scene/world/world2d.h"
 #include "scene/camera/camera.h"
 
-namespace rrender {
+namespace rolling {
 	void Line::Render() {
 		VertexShader();
 		FragmentShader();
@@ -11,10 +11,10 @@ namespace rrender {
 	void Line::Update() {
 
 	}
-	void Line::SetPos1(const rmath::VectorF3& pos) {
+	void Line::SetPos1(const rolling::VectorF3& pos) {
 		pos1 = { pos[0], pos[1], pos[2], 1};
 	}
-	void Line::SetPos2(const rmath::VectorF3& pos) {
+	void Line::SetPos2(const rolling::VectorF3& pos) {
 		pos2 = { pos[0], pos[1], pos[2], 1 };
 	}
 
@@ -23,7 +23,7 @@ namespace rrender {
 		m_World = world;
 	}
 
-	void Line::BresenhamX(int x1, int y1, int x2, int y2, rmath::Image<unsigned int>& image) 
+	void Line::BresenhamX(int x1, int y1, int x2, int y2, rolling::Image<unsigned int>& image) 
 	{
 		uint32_t uColor = color.ToARGB();
 
@@ -53,7 +53,7 @@ namespace rrender {
 		}
 	}
 
-	void Line::BresenhamY(int x1, int y1, int x2, int y2, rmath::Image<unsigned int>& image)
+	void Line::BresenhamY(int x1, int y1, int x2, int y2, rolling::Image<unsigned int>& image)
 	{
 		uint32_t uColor = color.ToARGB();
 
@@ -83,7 +83,7 @@ namespace rrender {
 		}
 	}
 
-	static void find_intersection(rmath::VectorF4& p1, rmath::VectorF4& p2, rmath::VectorF4& p3, int z0) {
+	static void find_intersection(rolling::VectorF4& p1, rolling::VectorF4& p2, rolling::VectorF4& p3, int z0) {
 		if (p2[2] == p1[2]) {
 			return;
 		}

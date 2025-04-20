@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <memory>
 
-namespace rrender {
+namespace rolling {
 
 	template <typename T> class SharedPtr;
 	template <typename T> class WeakPtr;

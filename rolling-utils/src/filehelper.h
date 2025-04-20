@@ -8,6 +8,6 @@
 
 #include <fstream>
 
-namespace rutils {
+namespace rolling {
 	size_t GetRemainingSize(std::ifstream& stream);
 };

@@ -29,7 +29,7 @@
 #define WIDTH 800 + 16
 #define HEIGHT 600 + 40
 
-namespace rrender {
+namespace rolling {
 
 	class RenderWindow
 	{
@@ -38,14 +38,14 @@ namespace rrender {
 		~RenderWindow();
 
 		void Init();
-		void Render(const rmath::Image<unsigned int>& image);
+		void Render(const rolling::Image<unsigned int>& image);
 		void Update();
 
 		bool WindowShouldClose();
 
-		rmath::Rect<int> GetWindowRect() const
+		rolling::Rect<int> GetWindowRect() const
 		{
-			return rmath::Rect<int>(0, 0, width, height);
+			return rolling::Rect<int>(0, 0, width, height);
 		}
 
 	private:

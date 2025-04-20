@@ -1,6 +1,6 @@
 #include "scene.h"
 
-namespace rrender {
+namespace rolling {
 	Scene::Scene()
 	{
 	}

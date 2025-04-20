@@ -1,7 +1,7 @@
 #include "line2d.h"
 #include "scene/world/world2d.h"
 
-namespace rrender {
+namespace rolling {
 	Line2D::Line2D()
 		: Node2D()
 	{
@@ -11,12 +11,12 @@ namespace rrender {
 	{
 	}
 
-	void Line2D::Update(rmath::Matrix4x4& modelViewTransform)
+	void Line2D::Update(rolling::Matrix4x4& modelViewTransform)
 	{
 		Node2D::Update(modelViewTransform);
 	}
 
-	void Line2D::Render(rmath::Matrix4x4& modelViewTransform)
+	void Line2D::Render(rolling::Matrix4x4& modelViewTransform)
 	{
 		VertexShader(modelViewTransform);
 		FragmentShader();
@@ -54,7 +54,7 @@ namespace rrender {
 		color2 = color;
 	}
 
-	void Line2D::VertexShader(rmath::Matrix4x4& modelViewTransform)
+	void Line2D::VertexShader(rolling::Matrix4x4& modelViewTransform)
 	{
 		tempPos1 = modelViewTransform * pos1;
 		tempPos2 = modelViewTransform * pos2;
