@@ -10,7 +10,7 @@
 #include <assert.h>
 
 namespace rolling {
-
+	static RenderWindow* g_MainWindow = nullptr;
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		switch (uMsg)
@@ -20,6 +20,16 @@ namespace rolling {
 			return 0;
 		case WM_ERASEBKGND:
 			return TRUE;
+		case WM_SIZE: {
+			RECT clientRect;
+			GetClientRect(hwnd, &clientRect);
+			int width = clientRect.right - clientRect.left;
+			int height = clientRect.bottom - clientRect.top;
+			if (g_MainWindow) {
+				g_MainWindow->SetWindowRect(width, height);
+			}
+			return 0;
+		}
 		default:
 			break;
 		}
@@ -28,6 +38,7 @@ namespace rolling {
 
 	RenderWindow::RenderWindow()
 	{
+		g_MainWindow = this;
 	}
 
 	RenderWindow::~RenderWindow()
@@ -37,6 +48,8 @@ namespace rolling {
 			DestroyWindow(hwnd);
 			hwnd = nullptr;
 		}
+
+		g_MainWindow = nullptr;
 	}
 
 	void RenderWindow::Init()
@@ -50,6 +63,12 @@ namespace rolling {
 
 	void RenderWindow::Render(const rolling::Image<unsigned int>& image)
 	{
+		if (rectDirty) {
+			ReleaseBitmap();
+			CreateBitmap();
+			rectDirty = false;
+		}
+
 		HDC hdc = GetDC(hwnd);
 
 		UINT* data = pbmp;
@@ -129,8 +148,7 @@ namespace rolling {
 
 		RECT clientRect;
 		if (GetClientRect(hwnd, &clientRect)) {
-			width = clientRect.right - clientRect.left;
-			height = clientRect.bottom - clientRect.top;
+			SetWindowRect(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
 		}
 	}
 
@@ -171,6 +189,8 @@ namespace rolling {
 
 	void RenderWindow::ReleaseBitmap()
 	{
+		pbmp = nullptr;
+
 		if (holdbmp && memhdc) {
 			SelectObject(memhdc, holdbmp);
 			holdbmp = nullptr;

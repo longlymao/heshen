@@ -47,12 +47,18 @@ namespace rolling {
 		{
 			return rolling::Rect<int>(0, 0, width, height);
 		}
+		void SetWindowRect(int w, int h) {
+			width = w;
+			height = h;
+			rectDirty = true;
+		}
 
 	private:
 		void RegisterWindowClass();
 		void UnRegisterWindowClass();
 		void CreateWindowInstance();
 		void ReleaseWindowInstance();
+
 		void CreateBitmap();
 		void ReleaseBitmap();
 
@@ -64,6 +70,8 @@ namespace rolling {
 		HBITMAP holdbmp = nullptr;
 		HBITMAP hbmp = nullptr;
 		UINT* pbmp = nullptr;
+
+		bool rectDirty = true;;
 
 		bool shouldClose = false;
 		int exitCode = 0;
