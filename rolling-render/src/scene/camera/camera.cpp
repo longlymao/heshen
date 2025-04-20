@@ -5,6 +5,7 @@
  */
 
 #include "camera.h"
+#include "scene/world/world2d.h"
 
 namespace rolling {
 	Camera::Camera():
@@ -64,10 +65,12 @@ namespace rolling {
 	{
 		rolling::Matrix4x4 orthographicMatrix;
 
-		float left = - 400;
-		float right = 400;
-		float bottom = -300;
-		float top = 300;
+		auto rect = m_world->GetResolution();
+
+		float left = 0;
+		float right = rect.GetWidth();
+		float bottom = 0;
+		float top = rect.GetHeight();
 		float nearZ = 0.0f;
 		float farZ = 10000.0f;
 

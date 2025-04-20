@@ -12,7 +12,6 @@
 #include "world/world2d.h"
 
 namespace rolling {
-	using RenderFunc = std::function<void(const rolling::Image<unsigned int>&)>;
 
 	class Scene {
 	public:
@@ -24,10 +23,10 @@ namespace rolling {
 		void Render();
 
 		void SetResolution(int width, int height);
-		void SetRenderFunc(RenderFunc func) { renderFunc = func; }
+		rolling::Rect<int> GetResolution();
+
 	private:
 		std::vector<World2D*> worlds;
-		RenderFunc renderFunc;
 
 		rolling::Rect<int> resolution;
 	};

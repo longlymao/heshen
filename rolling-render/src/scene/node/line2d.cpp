@@ -1,5 +1,6 @@
 #include "line2d.h"
 #include "scene/world/world2d.h"
+#include "renderer/shader/shaderbuffer.h"
 
 namespace rolling {
 	Line2D::Line2D()
@@ -18,8 +19,15 @@ namespace rolling {
 
 	void Line2D::Render(rolling::Matrix4x4& modelViewTransform)
 	{
-		VertexShader(modelViewTransform);
-		FragmentShader();
+		auto& CommandList = m_World->GetCommandList();
+		ShaderCommand cmd;
+		cmd.primitiveType = PrimitiveType::LINE;
+		cmd.buffer.AddData(modelViewTransform);
+		cmd.buffer.AddData(pos1);
+		cmd.buffer.AddData(pos2);
+		cmd.buffer.AddData(color1);
+		cmd.buffer.AddData(color2);
+		CommandList.AddCommand(std::move(cmd));
 	}
 
 	void Line2D::SetPos1(float x, float y)
@@ -52,101 +60,5 @@ namespace rolling {
 	void Line2D::SetColor2(const Color& color)
 	{
 		color2 = color;
-	}
-
-	void Line2D::VertexShader(rolling::Matrix4x4& modelViewTransform)
-	{
-		tempPos1 = modelViewTransform * pos1;
-		tempPos2 = modelViewTransform * pos2;
-	}
-
-	void Line2D::FragmentShader()
-	{
-		int x1 = tempPos1[0];
-		int y1 = tempPos1[1];
-		int x2 = tempPos2[0];
-		int y2 = tempPos2[1];
-
-		if (abs(y2 - y1) > abs(x2 - x1)) {
-			if (y1 > y2) {
-				BresenhamY(x2, y2, x1, y1, color2, color1);
-			}
-			else {
-				BresenhamY(x1, y1, x2, y2, color1, color2);
-			}
-		}
-		else {
-			if (x1 > x2) {
-				BresenhamX(x2, y2, x1, y1, color2, color1);
-			}
-			else {
-				BresenhamX(x1, y1, x2, y2, color1, color2);
-			}
-		}
-	}
-
-	void Line2D::BresenhamX(int x1, int y1, int x2, int y2, Color color1, Color color2)
-	{
-		auto& image = m_World->GetImage();
-
-		int x = x1;
-		int y = y1;
-
-		int dh = y2 - y1;
-		int dw = dh > 0 ? x2 - x1 : x1 - x2;
-		int yStep = dh > 0 ? 1 : -1;
-
-		int ee = 0;
-
-		image.Set(x, y, color1.ToARGB());
-
-		while (x < x2)
-		{
-			x++;
-			if (abs(ee + dh * 2) < abs(dw * 2)) {
-				ee += dh * 2;
-			}
-			else {
-				y += yStep;
-				ee += 2 * dh - 2 * dw;
-			}
-
-			float t = static_cast<float>(x - x1) / (x2 - x1);
-			Color color = Color::Lerp(color1, color2, t);
-
-			image.Set(x, y, color.ToARGB());
-		}
-	}
-	void Line2D::BresenhamY(int x1, int y1, int x2, int y2, Color color1, Color color2)
-	{
-		auto& image = m_World->GetImage();
-
-		int x = x1;
-		int y = y1;
-
-		int dw = x2 - x1;
-		int dh = dw > 0 ? y2 - y1 : y1 - y2;
-		int xStep = dw > 0 ? 1 : -1;
-
-		int ee = 0;
-
-		image.Set(x, y, color1.ToARGB());
-
-		while (y < y2)
-		{
-			y++;
-			if (abs(ee + dw * 2) < abs(dh * 2)) {
-				ee += dw * 2;
-			}
-			else {
-				x += xStep;
-				ee += 2 * dw - 2 * dh;
-			}
-
-			float t = static_cast<float>(y - y1) / (y2 - y1);
-			Color color = Color::Lerp(color1, color2, t);
-
-			image.Set(x, y, color.ToARGB());
-		}
 	}
 };

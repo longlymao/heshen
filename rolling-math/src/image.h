@@ -58,6 +58,9 @@ namespace rolling {
 		int width = 0;
 		int height = 0;
 	public:
+		Image() 
+		{
+		}
 		Image(int width, int height)
 			: width(width), height(height)
 		{

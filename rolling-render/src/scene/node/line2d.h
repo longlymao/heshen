@@ -40,17 +40,8 @@ namespace rolling {
 	private:
 		rolling::VectorF4 pos1;
 		rolling::VectorF4 pos2;
-		Color color = Color::WHITE;
+
 		Color color1 = Color::WHITE;
 		Color color2 = Color::WHITE;
-
-		void VertexShader(rolling::Matrix4x4& modelViewTransform);
-		void FragmentShader();
-
-		void BresenhamX(int x1, int y1, int x2, int y2, Color color1, Color color2);
-		void BresenhamY(int x1, int y1, int x2, int y2, Color color1, Color color2);
-
-		rolling::VectorF4 tempPos1;
-		rolling::VectorF4 tempPos2;
 	};
 }

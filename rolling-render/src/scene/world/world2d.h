@@ -14,7 +14,10 @@
 
 #include "scene/node/node2d.h"
 
+#include "renderer/commandlist.h"
+
 namespace rolling {
+	class Scene;
 
 	class World2D
 	{
@@ -25,19 +28,23 @@ namespace rolling {
 		void Render();
 		void Update();
 
-		void SetResolution(int width, int height);
-
-		const rolling::Image<unsigned int>& GetImage() const;
+		void SetScene(Scene* scene);
 
 		Camera& GetCamera();
-		rolling::Image<unsigned int>& GetImage();
 
 		void AddNode(SharedPtr<Node2D> node);
 
+		rolling::Rect<int> GetResolution();
+
+		CommandList& GetCommandList();
+
 	private:
+		Scene* m_Scene = nullptr;
+
 		Camera camera;
-		rolling::Image<unsigned int> image;
 
 		SharedPtr<Node2D> rootNode;
+
+		CommandList m_CommandList;
 	};
 }

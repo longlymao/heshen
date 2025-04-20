@@ -6,6 +6,8 @@
 
 #include "renderapp.h"
 
+#include "renderer/renderer.h"
+
 namespace rolling {
 	RenderApp::RenderApp()
 		: m_FrameRate(0)
@@ -31,12 +33,16 @@ namespace rolling {
 		auto renderFunc = [&](const rolling::Image<unsigned int>& image) {
 			m_Window->Render(image);
 			};
-		m_Scene.SetRenderFunc(renderFunc);
+		Renderer::GetInstance().SetPresentFunc(renderFunc);
 	}
 
 	void RenderApp::Render()
 	{
+		auto rect = m_Window->GetWindowRect();
+		Renderer::GetInstance().Prepare(rect);
 		m_Scene.Render();
+		Renderer::GetInstance().Render();
+		Renderer::GetInstance().Present();
 	}
 
 	void RenderApp::Update()
