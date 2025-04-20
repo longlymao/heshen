@@ -10,27 +10,14 @@ namespace rolling {
 	}
 	World2D::~World2D()
 	{
-		for (auto* line : lines) {
-			delete line;
-		}
-		lines.clear();
 	}
 	void World2D::Render()
 	{
-		for (auto* line : lines) {
-			line->Render();
-		}
-
 		rolling::Matrix4x4 modelViewTransform = camera.GetViewMatrix();
 		rootNode->Update(modelViewTransform);
 	}
 	void World2D::Update()
 	{
-	}
-	void World2D::AddLine(Line* line)
-	{
-		lines.push_back(line);
-		line->SetWorld(this);
 	}
 	void World2D::SetResolution(int width, int height)
 	{

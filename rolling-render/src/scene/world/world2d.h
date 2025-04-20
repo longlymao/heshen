@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "scene/camera/camera.h"
-#include "scene/primitive/line.h"
 #include "image.h"
 
 #include "scene/node/node2d.h"
@@ -26,8 +25,6 @@ namespace rolling {
 		void Render();
 		void Update();
 
-		void AddLine(Line* line);
-
 		void SetResolution(int width, int height);
 
 		const rolling::Image<unsigned int>& GetImage() const;
@@ -38,7 +35,6 @@ namespace rolling {
 		void AddNode(SharedPtr<Node2D> node);
 
 	private:
-		std::vector<Line*> lines;
 		Camera camera;
 		rolling::Image<unsigned int> image;
 
