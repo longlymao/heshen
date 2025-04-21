@@ -9,6 +9,8 @@
 #include <tchar.h>
 #include <assert.h>
 
+#include "app/input/inputmanager.h"
+
 namespace rolling {
 	static RenderWindow* g_MainWindow = nullptr;
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -30,6 +32,14 @@ namespace rolling {
 			}
 			return 0;
 		}
+		case WM_KEYDOWN:
+		case WM_KEYUP:
+		{
+			KeyCode code = InputManager::TransWin32KeyToKeyCode(wParam);
+			KeyEvent event = InputManager::TransWin32KeyEventToKeyEvent(uMsg);
+			InputManager::GetInstance().ProcessWin32Event(code, event);
+		}
+		return 0;
 		default:
 			break;
 		}
