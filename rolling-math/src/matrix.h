@@ -89,6 +89,30 @@ namespace rolling {
 			}
 			return *this;
 		}
+		Vector<T, SIZE> operator-=(const Vector<T, SIZE>& other)
+		{
+			for (size_t i = 0; i < SIZE; i++)
+			{
+				data[i] -= other[i];
+			}
+			return *this;
+		}
+		Vector<T, SIZE> operator*=(T scalar)
+		{
+			for (size_t i = 0; i < SIZE; i++)
+			{
+				data[i] *= scalar;
+			}
+			return *this;
+		}
+		Vector<T, SIZE> operator/=(T scalar)
+		{
+			for (size_t i = 0; i < SIZE; i++)
+			{
+				data[i] /= scalar;
+			}
+			return *this;
+		}
 		T Dot(const Vector<T, SIZE>& other) const
 		{
 			T result = 0;

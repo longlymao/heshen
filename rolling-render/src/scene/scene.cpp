@@ -6,27 +6,44 @@ namespace rolling {
 	}
 	Scene::~Scene()
 	{
-		for (auto* world : worlds) {
+		for (auto* world : worlds2d) {
 			delete world;
 		}
-		worlds.clear();
+		worlds2d.clear();
+		for (auto* world : worlds3d) {
+			delete world;
+		}
+		worlds3d.clear();
 	}
+
 	void Scene::AddWorld(World2D* world)
 	{
-		worlds.push_back(world);
+		worlds2d.push_back(world);
+		world->SetScene(this);
+	}
+
+	void Scene::AddWorld(World3D* world)
+	{
+		worlds3d.push_back(world);
 		world->SetScene(this);
 	}
 
 	void Scene::Update()
 	{
-		for (auto* world : worlds) {
+		for (auto* world : worlds2d) {
+			world->Update();
+		}
+		for (auto* world : worlds3d) {
 			world->Update();
 		}
 	}
 
 	void Scene::Render()
 	{
-		for (auto* world : worlds) {
+		for (auto* world : worlds2d) {
+			world->Render();
+		}
+		for (auto* world : worlds3d) {
 			world->Render();
 		}
 	}

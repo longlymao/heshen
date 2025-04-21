@@ -11,20 +11,18 @@
 #include <numbers>
 
 namespace rolling {
-	class World2D;
+	class World3D;
 
-	class Camera
-	{
+	class Camera3D {
+
 	public:
-		Camera();
-		~Camera();
+		Camera3D();
+		~Camera3D();
 
 		rolling::Matrix4x4 GetViewMatrix() const;
 		rolling::Matrix4x4 GetProjectionMatrix() const;
 		rolling::Matrix4x4 GetViewProjectionMatrix() const;
-	
 		rolling::Matrix4x4 GetOrthgraphicMatrix() const;
-		rolling::Matrix4x4 GetOrthgraphicMatrix2() const;
 
 		void SetEye(const rolling::VectorF3& e);
 		void SetTarget(const rolling::VectorF3& t);
@@ -34,7 +32,7 @@ namespace rolling {
 		void SetNear(float n);
 		void SetFar(float f);
 
-		void SetWorld(World2D* world);
+		void SetWorld(World3D* world);
 
 		rolling::VectorF3 eye;
 		rolling::VectorF3 target;
@@ -45,6 +43,6 @@ namespace rolling {
 		float near = 0.1;
 		float far = 100;
 
-		World2D* m_world;
+		World3D* m_world;
 	};
-};
+}

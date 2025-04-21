@@ -10,6 +10,7 @@
 #include <functional>
 
 #include "world/world2d.h"
+#include "world/world3d.h"
 
 namespace rolling {
 
@@ -19,6 +20,7 @@ namespace rolling {
 		~Scene();
 
 		void AddWorld(World2D* world);
+		void AddWorld(World3D* world);
 		void Update();
 		void Render();
 
@@ -26,7 +28,8 @@ namespace rolling {
 		rolling::Rect<int> GetResolution();
 
 	private:
-		std::vector<World2D*> worlds;
+		std::vector<World2D*> worlds2d;
+		std::vector<World3D*> worlds3d;
 
 		rolling::Rect<int> resolution;
 	};

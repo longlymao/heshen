@@ -46,6 +46,9 @@ namespace rolling {
 		void SetWorld(World2D* world) {
 			m_World = world;
 		}
+		World2D* GetWorld() {
+			return m_World;
+		}
 
 	protected:
 		std::vector<rolling::SharedPtr<Node2D>> m_Children;

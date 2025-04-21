@@ -90,6 +90,8 @@ namespace rolling {
 			int viewportHeight = image.GetHeight();
 
 			auto ViewportTransformation = [&](VectorF4& pos) {
+					pos /= pos[3];
+
 					pos[0] = (pos[0] + 1) * 0.5 * viewportWidth;
 					pos[1] = (pos[1] + 1) * 0.5 * viewportHeight;
 				};

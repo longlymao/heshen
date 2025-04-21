@@ -4,11 +4,11 @@
  * MIT License
  */
 
-#include "camera.h"
+#include "camera2d.h"
 #include "scene/world/world2d.h"
 
 namespace rolling {
-	Camera::Camera():
+	Camera2D::Camera2D():
 		m_world(nullptr)
 	{
 		eye = rolling::VectorF3(0, 0, 0);
@@ -19,10 +19,10 @@ namespace rolling {
 		near = 0.1f;
 		far = 10000.0f;
 	}
-	Camera::~Camera()
+	Camera2D::~Camera2D()
 	{
 	}
-	rolling::Matrix4x4 Camera::GetViewMatrix() const
+	rolling::Matrix4x4 Camera2D::GetViewMatrix() const
 	{
 		rolling::VectorF3 _forward = (target - eye).Normalize();
 		rolling::VectorF3 _right = up.Cross(_forward).Normalize();
@@ -39,7 +39,7 @@ namespace rolling {
 
 		return viewMatrix;
 	}
-	rolling::Matrix4x4 Camera::GetProjectionMatrix() const
+	rolling::Matrix4x4 Camera2D::GetProjectionMatrix() const
 	{
 		rolling::Matrix4x4 projMatrix;
 		//float f = 1.0f / std::tan(fov / 2.0f);
@@ -57,11 +57,11 @@ namespace rolling {
 
 		return projMatrix;
 	}
-	rolling::Matrix4x4 Camera::GetViewProjectionMatrix() const
+	rolling::Matrix4x4 Camera2D::GetViewProjectionMatrix() const
 	{
 		return GetProjectionMatrix() * GetViewMatrix();
 	}
-	rolling::Matrix4x4 Camera::GetOrthgraphicMatrix() const
+	rolling::Matrix4x4 Camera2D::GetOrthgraphicMatrix() const
 	{
 		rolling::Matrix4x4 orthographicMatrix;
 
@@ -84,7 +84,7 @@ namespace rolling {
 
 		return orthographicMatrix;
 	}
-	rolling::Matrix4x4 Camera::GetOrthgraphicMatrix2() const
+	rolling::Matrix4x4 Camera2D::GetOrthgraphicMatrix2() const
 	{
 		rolling::Matrix4x4 orthographicMatrix;
 		float top = near * tan(fov / 2.0f);
@@ -104,35 +104,35 @@ namespace rolling {
 
 		return orthographicMatrix;
 	}
-	void Camera::SetEye(const rolling::VectorF3& e)
+	void Camera2D::SetEye(const rolling::VectorF3& e)
 	{
 		eye = e;
 	}
-	void Camera::SetTarget(const rolling::VectorF3& t)
+	void Camera2D::SetTarget(const rolling::VectorF3& t)
 	{
 		target = t;
 	}
-	void Camera::SetUp(const rolling::VectorF3& u)
+	void Camera2D::SetUp(const rolling::VectorF3& u)
 	{
 		up = u;
 	}
-	void Camera::SetFov(float f)
+	void Camera2D::SetFov(float f)
 	{
 		fov = f;
 	}
-	void Camera::SetAspect(float s)
+	void Camera2D::SetAspect(float s)
 	{
 		aspect = s;
 	}
-	void Camera::SetNear(float n)
+	void Camera2D::SetNear(float n)
 	{
 		near = n;
 	}
-	void Camera::SetFar(float f)
+	void Camera2D::SetFar(float f)
 	{
 		far = f;
 	}
-	void Camera::SetWorld(World2D* world)
+	void Camera2D::SetWorld(World2D* world)
 	{
 		m_world = world;
 	}

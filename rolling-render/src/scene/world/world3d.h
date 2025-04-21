@@ -9,42 +9,37 @@
 #include <unordered_map>
 #include <vector>
 
-#include "scene/camera/camera2d.h"
+#include "scene/camera/camera3d.h"
 #include "image.h"
 
-#include "scene/node/node2d.h"
+#include "scene/node/node3d.h"
 
 #include "renderer/commandlist.h"
 
 namespace rolling {
 	class Scene;
 
-	class World2D
-	{
+	class World3D {
 	public:
-		World2D();
-		~World2D();
+		World3D();
+		~World3D();
 
 		void Render();
 		void Update();
 
 		void SetScene(Scene* scene);
 
-		Camera2D& GetCamera();
+		Camera3D& GetCamera();
 
-		void AddNode(SharedPtr<Node2D> node);
+		void AddNode(SharedPtr<Node3D> node);
 
-		rolling::Rect<int> GetResolution();
-
+		Rect<int> GetResolution();
 		CommandList& GetCommandList();
 
 	private:
 		Scene* m_Scene = nullptr;
-
-		Camera2D camera;
-
-		SharedPtr<Node2D> rootNode;
-
+		Camera3D camera;
+		std::vector<SharedPtr<Node3D>> m_Nodes;
 		CommandList m_CommandList;
 	};
 }

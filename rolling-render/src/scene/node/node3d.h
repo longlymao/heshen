@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "base/ref.h"
 #include "matrix.h"
 
 namespace rolling {
@@ -15,15 +16,24 @@ namespace rolling {
 	public:
 		Node3D() = default;
 		virtual ~Node3D() = default;
-		virtual void Render() = 0;
-		virtual void Update() = 0;
+		virtual void Render(rolling::Matrix4x4& modelViewTransform) = 0;
+		virtual void Update(rolling::Matrix4x4& modelViewTransform) = 0;
 
-		void SetPos(const rolling::VectorF3& pos) { m_Pos = pos; }
+		rolling::Matrix4x4 GetLocalTransform();
+		void SetPosition(float x, float y, float z);
+		void SetScale(float x, float y, float z);
+
 		void SetWorld(World3D* world) { m_World = world; }
 		World3D* GetWorld() { return m_World; }
 
-	private:
+	protected:
 		World3D* m_World = nullptr;
-		rolling::VectorF3 m_Pos = { 0, 0, 0 };
+
+		rolling::Matrix4x4 m_LocalTransform;
+		bool m_LocalTransformDirty = true;
+
+		rolling::VectorF4 m_LocalPosition = { 0, 0, 0, 1 };
+		rolling::VectorF4 m_LocalScale = { 1, 1, 1, 1 };
+		rolling::VectorF4 m_LocalRotation = { 0, 0, 0, 1 };
 	};
 }

@@ -37,7 +37,7 @@ namespace rolling {
 		m_Scene = scene;
 	}
 
-	Camera& World2D::GetCamera()
+	Camera2D& World2D::GetCamera()
 	{
 		return camera;
 	}
