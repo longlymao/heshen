@@ -21,7 +21,7 @@ add_library(rolling-render STATIC
 	"src/renderer/renderer.cpp"
 	"src/scene/world/world3d.h" "src/scene/world/world3d.cpp"
 	"src/scene/camera/camera3d.h" "src/scene/camera/camera3d.cpp"
-	"src/app/input/inputmanager.h" "src/app/input/inputmanager.cpp")
+	"src/app/input/inputmanager.h" "src/app/input/inputmanager.cpp" "src/scene/world/playercontrol.h" "src/scene/world/playercontrol.cpp")
 
 target_include_directories(rolling-render PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries(rolling-render PRIVATE rolling-math)

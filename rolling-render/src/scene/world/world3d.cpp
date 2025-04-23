@@ -5,7 +5,8 @@
 #include <functional>
 
 namespace rolling {
-	World3D::World3D()
+	World3D::World3D():
+		m_PlayerControl(this)
 	{
 		camera.SetWorld(this);
 
@@ -16,12 +17,6 @@ namespace rolling {
 		camera.SetEye(rolling::VectorF3(0, 0, -300));
 		camera.SetTarget(rolling::VectorF3(0, 0, 0));
 		camera.SetUp(rolling::VectorF3(0, 1, 0));
-
-		m_InputHelper = std::make_unique<InputHelper>(
-			[this](KeyCode code, KeyEvent event) {
-				OnInputEvent(code, event);
-			}
-		);
 	}
 
 	World3D::~World3D()
@@ -44,6 +39,7 @@ namespace rolling {
 
 	void World3D::Update()
 	{
+		m_PlayerControl.Update();
 		rolling::Matrix4x4 modelViewTransform = camera.GetOrthgraphicMatrix() * camera.GetViewMatrix();
 
 		for (auto& node : m_Nodes) {
@@ -75,32 +71,5 @@ namespace rolling {
 	CommandList& World3D::GetCommandList()
 	{
 		return m_CommandList;
-	}
-	void World3D::OnInputEvent(KeyCode key, KeyEvent event)
-	{
-		if (event == KeyEvent::KEY_UP) {
-
-			auto eye = camera.eye;
-
-			switch (key)
-			{
-			case rolling::KeyCode::W:
-				eye[1] += 10;
-				break;
-			case rolling::KeyCode::A:
-				eye[0] -= 10;
-				break;
-			case rolling::KeyCode::S:
-				eye[1] -= 10;
-				break;
-			case rolling::KeyCode::D:
-				eye[0] += 10;
-				break;
-			default:
-				break;
-			}
-
-			camera.SetEye(eye);
-		}
 	}
 }

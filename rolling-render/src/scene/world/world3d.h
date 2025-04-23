@@ -17,22 +17,10 @@
 #include "renderer/commandlist.h"
 
 #include "app/input/inputmanager.h"
+#include "playercontrol.h"
 
 namespace rolling {
 	class Scene;
-
-	class InputHelper {
-	public:
-		InputHelper() = delete;
-		InputHelper(InputHandler handle) {
-			handleId = InputManager::GetInstance().RegisterHandler(handle);
-		}
-		~InputHelper() {
-			InputManager::GetInstance().UnregisterHandler(handleId);
-		}
-	private:
-		int handleId = 0;
-	};
 
 	class World3D {
 	public:
@@ -50,16 +38,15 @@ namespace rolling {
 
 		Rect<int> GetResolution();
 		CommandList& GetCommandList();
-		
-	private:
-		void OnInputEvent(KeyCode key, KeyEvent event);
 
 	private:
 		Scene* m_Scene = nullptr;
 		Camera3D camera;
+
 		std::vector<SharedPtr<Node3D>> m_Nodes;
+
 		CommandList m_CommandList;
 
-		std::unique_ptr<InputHelper> m_InputHelper = nullptr;
+		PlayerControl m_PlayerControl;
 	};
 }

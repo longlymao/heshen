@@ -34,6 +34,9 @@ namespace rolling {
 
 		void SetWorld(World3D* world);
 
+		void MoveLocal(const rolling::VectorF3& localMove);
+		void RotateLocal(float yaw, float pitch);
+
 		rolling::VectorF3 eye;
 		rolling::VectorF3 target;
 		rolling::VectorF3 up;

@@ -20,6 +20,11 @@ namespace rolling {
 		NONE,
 		KEY_DOWN,
 		KEY_UP,
+
+		MOUSE_MOVE,
+
+		FOCUS_IN,
+		FOCUS_OUT,
 	};
 
 	using InputHandler = std::function<void(KeyCode, KeyEvent)>;
@@ -36,10 +41,28 @@ namespace rolling {
 
 		void ProcessWin32Event(KeyCode key, KeyEvent event);
 
+		void HandleInputEvent(KeyEvent event, KeyCode key, int x, int y);
+
+		bool IsKeyPressed(KeyCode key);
+
+		int GetMouseX() const { return mouseX; }
+		int GetMouseY() const { return mouseY; }
+		int GetMouseMoveX() const { return mouseMoveX; }
+		int GetMouseMoveY() const { return mouseMoveY; }
+
+		void EndFrame();
+
 	private:
 		std::unordered_map<int, InputHandler> m_Handlers;
+		std::unordered_map<KeyCode, bool> m_KeyStates;
 
 		int sid = 0;
+
+		int mouseX = 0;
+		int mouseY = 0;
+		int mouseMoveX = 0;
+		int mouseMoveY = 0;
+		bool firstMouseMove = true;
 	};
 
 }

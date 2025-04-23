@@ -47,8 +47,9 @@ namespace rolling {
 
 	void RenderApp::Update()
 	{
-		m_Scene.Update();
 		m_Window->Update();
+		m_Scene.Update();
+		InputManager::GetInstance().EndFrame();
 	}
 
 	void RenderApp::MainLoop()

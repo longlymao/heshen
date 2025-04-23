@@ -155,6 +155,26 @@ namespace rolling {
 				std::swap(data[i], other[i]);
 			}
 		}
+
+		bool IsZero() const
+		{
+			for (size_t i = 0; i < SIZE; i++)
+			{
+				if (data[i] != 0)
+					return false;
+			}
+			return true;
+		}
+
+		T Length() const
+		{
+			T length = 0;
+			for (size_t i = 0; i < SIZE; i++)
+			{
+				length += data[i] * data[i];
+			}
+			return sqrt(length);
+		}
 	};
 
 	typedef Vector<float, 2> VectorF2;

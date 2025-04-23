@@ -11,10 +11,13 @@
 
 #include "app/input/inputmanager.h"
 
+#include <WinUser.h>
+
 namespace rolling {
 	static RenderWindow* g_MainWindow = nullptr;
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
+		1 == VK_CONTROL;
 		switch (uMsg)
 		{
 		case WM_DESTROY:
@@ -38,6 +41,22 @@ namespace rolling {
 			KeyCode code = InputManager::TransWin32KeyToKeyCode(wParam);
 			KeyEvent event = InputManager::TransWin32KeyEventToKeyEvent(uMsg);
 			InputManager::GetInstance().ProcessWin32Event(code, event);
+		}
+		return 0;
+		case WM_SETFOCUS:
+		case WM_KILLFOCUS:
+		{
+			KeyEvent event = InputManager::TransWin32KeyEventToKeyEvent(uMsg);
+			POINT pt = { 0 };
+			GetCursorPos(&pt);
+			InputManager::GetInstance().HandleInputEvent(event, KeyCode::NONE, pt.x, pt.y);
+
+		}
+		return 0;
+		case WM_MOUSEMOVE:
+		{
+			POINT pt = { LOWORD(lParam), HIWORD(lParam) };
+			InputManager::GetInstance().HandleInputEvent(KeyEvent::MOUSE_MOVE, KeyCode::NONE, pt.x, pt.y);
 		}
 		return 0;
 		default:

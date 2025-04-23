@@ -1,5 +1,6 @@
 #include "camera3d.h"
 #include "scene/world/world3d.h"
+#include <cmath>
 
 namespace rolling {
 	Camera3D::Camera3D()
@@ -94,5 +95,43 @@ namespace rolling {
 	void Camera3D::SetWorld(World3D* world)
 	{
 		m_world = world;
+	}
+	void Camera3D::MoveLocal(const rolling::VectorF3& localMove)
+	{
+		rolling::VectorF3 _forward = (target - eye).Normalize();
+		rolling::VectorF3 _right = up.Cross(_forward).Normalize();
+		rolling::VectorF3 _up = _forward.Cross(_right).Normalize();
+		eye += _forward * localMove[2];
+		eye += _right * localMove[0];
+		eye += _up * localMove[1];
+		target += _forward * localMove[2];
+		target += _right * localMove[0];
+		target += _up * localMove[1];
+	}
+	void Camera3D::RotateLocal(float yaw, float pitch)
+	{
+		//target[1] += 10;
+		//return;
+		int d = (target - eye).Length();
+
+		rolling::VectorF3 _forward = (target - eye).Normalize();
+		rolling::VectorF3 _right = up.Cross(_forward).Normalize();
+		rolling::VectorF3 _up = _forward.Cross(_right).Normalize();
+	
+		if (pitch > 89.0f)
+			pitch = 89.0f;
+		if (pitch < -89.0f)
+			pitch = -89.0f;
+
+		auto ToRadians = [](float degree) {
+			return degree * std::numbers::pi / 180.0f;
+			};
+
+		auto f = (_forward + _right * std::sin(ToRadians(yaw))).Normalize();
+		auto r = _up.Cross(f).Normalize();
+		f = (f + _up * std::sin(ToRadians(pitch))).Normalize();
+		auto u = f.Cross(r).Normalize();
+
+		target = eye + f * d;
 	}
 }
