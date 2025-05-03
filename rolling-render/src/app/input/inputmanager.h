@@ -14,6 +14,8 @@ namespace rolling {
 	enum class KeyCode {
 		NONE,
 		W, A, S, D,
+		Q, E,
+		MouseLeft, MouseRight, MouseMiddle,
 	};
 
 	enum class KeyEvent {
@@ -25,6 +27,13 @@ namespace rolling {
 
 		FOCUS_IN,
 		FOCUS_OUT,
+
+		MOUSE_LEFT_DOWN,
+		MOUSE_LEFT_UP,
+		MOUSE_RIGHT_DOWN,
+		MOUSE_RIGHT_UP,
+		MOUSE_MIDDLE_DOWN,
+		MOUSE_MIDDLE_UP,
 	};
 
 	using InputHandler = std::function<void(KeyCode, KeyEvent)>;
@@ -44,6 +53,8 @@ namespace rolling {
 		void HandleInputEvent(KeyEvent event, KeyCode key, int x, int y);
 
 		bool IsKeyPressed(KeyCode key);
+		void ClearKeyState(KeyCode key);
+		void ClearKeyStates();
 
 		int GetMouseX() const { return mouseX; }
 		int GetMouseY() const { return mouseY; }

@@ -13,6 +13,8 @@ namespace rolling {
 		case 0x41: return KeyCode::A;
 		case 0x53: return KeyCode::S;
 		case 0x44: return KeyCode::D;
+		case 0x51: return KeyCode::Q;
+		case 0x45: return KeyCode::E;
 		default: return KeyCode::NONE; // Default to W if not recognized
 		}
 	}
@@ -23,6 +25,13 @@ namespace rolling {
 		case WM_KEYUP: return KeyEvent::KEY_UP;
 		case WM_SETFOCUS: return KeyEvent::FOCUS_IN;
 		case WM_KILLFOCUS: return KeyEvent::FOCUS_OUT;
+		case WM_MOUSEMOVE: return KeyEvent::MOUSE_MOVE;
+		case WM_LBUTTONDOWN: return KeyEvent::MOUSE_LEFT_DOWN;
+		case WM_LBUTTONUP: return KeyEvent::MOUSE_LEFT_UP;
+		case WM_RBUTTONDOWN: return KeyEvent::MOUSE_RIGHT_DOWN;
+		case WM_RBUTTONUP: return KeyEvent::MOUSE_RIGHT_UP;
+		case WM_MBUTTONDOWN: return KeyEvent::MOUSE_MIDDLE_DOWN;
+		case WM_MBUTTONUP: return KeyEvent::MOUSE_MIDDLE_UP;
 		default: return KeyEvent::NONE; // Default to KEY_DOWN if not recognized
 		}
 	}
@@ -84,6 +93,39 @@ namespace rolling {
 		}
 			break;
 		case rolling::KeyEvent::FOCUS_OUT:
+		{
+			ClearKeyStates();
+		}
+			break;
+		case rolling::KeyEvent::MOUSE_LEFT_DOWN:
+		{
+			m_KeyStates[KeyCode::MouseLeft] = true;
+		}
+			break;
+		case rolling::KeyEvent::MOUSE_LEFT_UP:
+		{
+			m_KeyStates[KeyCode::MouseLeft] = false;
+		}
+			break;
+		case rolling::KeyEvent::MOUSE_RIGHT_DOWN:
+		{
+			m_KeyStates[KeyCode::MouseRight] = true;
+		}
+			break;
+		case rolling::KeyEvent::MOUSE_RIGHT_UP:
+		{
+			m_KeyStates[KeyCode::MouseRight] = false;
+		}
+			break;
+		case rolling::KeyEvent::MOUSE_MIDDLE_DOWN:
+		{
+			m_KeyStates[KeyCode::MouseMiddle] = true;
+		}
+			break;
+		case rolling::KeyEvent::MOUSE_MIDDLE_UP:
+		{
+			m_KeyStates[KeyCode::MouseMiddle] = false;
+		}
 			break;
 		default:
 			break;
@@ -97,6 +139,20 @@ namespace rolling {
 		}
 		return false;
 	}
+	void InputManager::ClearKeyState(KeyCode key)
+	{
+		auto it = m_KeyStates.find(key);
+		if (it != m_KeyStates.end()) {
+			it->second = false;
+		}
+	}
+	void InputManager::ClearKeyStates()
+	{
+		for (auto& it : m_KeyStates) {
+			it.second = false;
+		}
+	}
+
 	void InputManager::EndFrame()
 	{
 		mouseMoveX = 0;

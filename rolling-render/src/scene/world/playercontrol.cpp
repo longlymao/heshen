@@ -1,4 +1,5 @@
 #include "playercontrol.h"
+#include "app/input/inputmanager.h"
 #include "matrix.h"
 
 #include "world3d.h"
@@ -37,6 +38,12 @@ namespace rolling {
 		if (InputManager::GetInstance().IsKeyPressed(KeyCode::D)) {
 			localMove[0] += speed;
 		}
+		if (InputManager::GetInstance().IsKeyPressed(KeyCode::Q)) {
+			localMove[1] += speed;
+		}
+		if (InputManager::GetInstance().IsKeyPressed(KeyCode::E)) {
+			localMove[1] += -speed;
+		}
 
 		if (!localMove.IsZero()) {
 			m_World->GetCamera().MoveLocal(localMove);
@@ -48,7 +55,7 @@ namespace rolling {
 
 		constexpr float sensitivity = 0.1f;
 
-		if (mouseMoveX != 0 || mouseMoveY != 0) {
+		if (InputManager::GetInstance().IsKeyPressed(KeyCode::MouseRight) && (mouseMoveX != 0 || mouseMoveY != 0)) {
 			float yaw = mouseMoveX * sensitivity;
 			float pitch = mouseMoveY * sensitivity;
 			m_World->GetCamera().RotateLocal(yaw, -pitch);

@@ -59,6 +59,29 @@ namespace rolling {
 			InputManager::GetInstance().HandleInputEvent(KeyEvent::MOUSE_MOVE, KeyCode::NONE, pt.x, pt.y);
 		}
 		return 0;
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONUP:
+		case WM_RBUTTONDOWN:
+		case WM_RBUTTONUP:
+		case WM_MBUTTONDOWN:
+		case WM_MBUTTONUP:
+		{
+			KeyEvent event = InputManager::TransWin32KeyEventToKeyEvent(uMsg);
+			KeyCode code = KeyCode::NONE;
+			switch (uMsg) {
+			case WM_LBUTTONDOWN: code = KeyCode::MouseLeft; break;
+			case WM_LBUTTONUP: code = KeyCode::MouseLeft; break;
+			case WM_RBUTTONDOWN: code = KeyCode::MouseRight; break;
+			case WM_RBUTTONUP: code = KeyCode::MouseRight; break;
+			case WM_MBUTTONDOWN: code = KeyCode::MouseMiddle; break;
+			case WM_MBUTTONUP: code = KeyCode::MouseMiddle; break;
+			default:
+				break;
+			}
+			POINT pt = { LOWORD(lParam), HIWORD(lParam) };
+			InputManager::GetInstance().HandleInputEvent(event, code, pt.x, pt.y);
+		}
+		return 0;
 		default:
 			break;
 		}
