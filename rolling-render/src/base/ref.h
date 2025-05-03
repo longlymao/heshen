@@ -200,8 +200,8 @@ namespace rolling {
 			}
 		}
 
-		friend class WeakPtr<T>;
-		friend class SharedPtr;
+		template <typename> friend class SharedPtr;
+		template <typename> friend class WeakPtr;
 	};
 
 	template<typename T>
@@ -332,8 +332,8 @@ namespace rolling {
 			}
 		}
 
-		friend class SharedPtr<T>;
-		friend class WeakPtr;
+	template <typename> friend class SharedPtr;
+	template <typename> friend class WeakPtr;
 	};
 
 	template<typename T>
