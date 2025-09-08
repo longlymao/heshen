@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include "base/ref.h"
 #include "matrix.h"
 
 namespace rolling {

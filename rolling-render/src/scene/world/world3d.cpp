@@ -2,8 +2,6 @@
 #include "scene/scene.h"
 #include "renderer/renderer.h"
 
-#include <functional>
-
 namespace rolling {
 	World3D::World3D():
 		m_PlayerControl(this)
@@ -57,7 +55,7 @@ namespace rolling {
 		return camera;
 	}
 
-	void World3D::AddNode(SharedPtr<Node3D> node)
+	void World3D::AddNode(base::SharedPtr<Node3D> node)
 	{
 		m_Nodes.push_back(node);
 		node->SetWorld(this);

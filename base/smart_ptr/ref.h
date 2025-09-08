@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <memory>
 
-namespace rolling {
+namespace rolling::base {
 
 	template <typename T> class SharedPtr;
 	template <typename T> class WeakPtr;

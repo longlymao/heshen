@@ -6,9 +6,6 @@
 
 #pragma once
 
-#include <unordered_map>
-#include <vector>
-
 #include "scene/camera/camera2d.h"
 #include "image.h"
 
@@ -32,7 +29,7 @@ namespace rolling {
 
 		Camera2D& GetCamera();
 
-		void AddNode(SharedPtr<Node2D> node);
+		void AddNode(base::SharedPtr<Node2D> node);
 
 		rolling::Rect<int> GetResolution();
 
@@ -43,7 +40,7 @@ namespace rolling {
 
 		Camera2D camera;
 
-		SharedPtr<Node2D> rootNode;
+		base::SharedPtr<Node2D> rootNode;
 
 		CommandList m_CommandList;
 	};

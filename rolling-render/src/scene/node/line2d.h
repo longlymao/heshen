@@ -14,8 +14,8 @@ namespace rolling {
 	public:
 		using thisType = Line2D;
 		template <typename... Args>
-		static SharedPtr<thisType> create(Args&&... args) {
-			return SharedPtr<thisType>(new thisType(std::forward<Args>(args)...));
+		static base::SharedPtr<thisType> create(Args&&... args) {
+			return base::SharedPtr<thisType>(new thisType(std::forward<Args>(args)...));
 		}
 
 	public:

@@ -1,9 +1,8 @@
 #include "renderapp.h"
 
-#include "matrix.h"
 #include "base/color.h"
 
-#include "base/ref.h"
+#include "ref.h"
 
 #include "scene/node/line2d.h"
 #include "scene/node/cube.h"
@@ -24,7 +23,7 @@ static int WINAPI WinMain(
 	auto AddLine = [&](int x1, int y1, int z1, int x2, int y2, int z2, 
 		rolling::Color color1 = rolling::Color::WHITE, rolling::Color color2 = rolling::Color::WHITE) {
 
-		rolling::SharedPtr<rolling::Line2D> line = rolling::Line2D::create();
+		rolling::base::SharedPtr<rolling::Line2D> line = rolling::Line2D::create();
 		line->SetPosition(300, 200);
 		line->SetPos1(x1, y1);
 		line->SetPos2(x2, y2);
@@ -50,7 +49,7 @@ static int WINAPI WinMain(
 	rolling::World3D* world3d = new rolling::World3D();
 	app.GetScene().AddWorld(world3d);
 
-	rolling::SharedPtr<rolling::Cube> cube = rolling::Cube::create();
+	rolling::base::SharedPtr<rolling::Cube> cube = rolling::Cube::create();
 	cube->SetPosition(0, 0, 0);
 	cube->SetScale(1, 1, 1);
 	cube->SetWidth(100);

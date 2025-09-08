@@ -26,13 +26,13 @@ namespace rolling {
 	{
 	}
 
-	void Node2D::AddChild(SharedPtr<Node2D> child)
+	void Node2D::AddChild(base::SharedPtr<Node2D> child)
 	{
 		m_Children.push_back(child);
 		child->SetParent(this->ShareFromThis());
 	}
 
-	void Node2D::RemoveChild(SharedPtr<Node2D> child)
+	void Node2D::RemoveChild(base::SharedPtr<Node2D> child)
 	{
 		auto it = std::find(m_Children.begin(), m_Children.end(), child);
 		if (it != m_Children.end()) {
@@ -41,7 +41,7 @@ namespace rolling {
 		}
 	}
 
-	void Node2D::SetParent(WeakPtr<Node2D> parent)
+	void Node2D::SetParent(base::WeakPtr<Node2D> parent)
 	{
 		m_Parent = parent;
 		if (parent) {

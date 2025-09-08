@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <unordered_map>
+#include "ref.h"
 #include <vector>
 
 #include "scene/camera/camera3d.h"
@@ -16,7 +16,6 @@
 
 #include "renderer/commandlist.h"
 
-#include "app/input/inputmanager.h"
 #include "playercontrol.h"
 
 namespace rolling {
@@ -34,7 +33,7 @@ namespace rolling {
 
 		Camera3D& GetCamera();
 
-		void AddNode(SharedPtr<Node3D> node);
+		void AddNode(base::SharedPtr<Node3D> node);
 
 		Rect<int> GetResolution();
 		CommandList& GetCommandList();
@@ -43,7 +42,7 @@ namespace rolling {
 		Scene* m_Scene = nullptr;
 		Camera3D camera;
 
-		std::vector<SharedPtr<Node3D>> m_Nodes;
+		std::vector<base::SharedPtr<Node3D>> m_Nodes;
 
 		CommandList m_CommandList;
 

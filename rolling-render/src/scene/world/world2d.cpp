@@ -42,7 +42,7 @@ namespace rolling {
 		return camera;
 	}
 
-	void World2D::AddNode(SharedPtr<Node2D> node)
+	void World2D::AddNode(base::SharedPtr<Node2D> node)
 	{
 		rootNode->AddChild(node);
 	}

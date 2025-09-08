@@ -6,21 +6,20 @@
 
 #pragma once
 
-#include <cstdint>
 #include <vector>
-#include "base/ref.h"
+#include "ref.h"
 #include "matrix.h"
 
 namespace rolling {
 
 	class World2D;
 
-	class Node2D : public EnableShareFromThis<Node2D> {
+	class Node2D : public base::EnableShareFromThis<Node2D> {
 	public:
 		using thisType = Node2D;
 		template <typename... Args>
-		static SharedPtr<thisType> create(Args&&... args) {
-			return SharedPtr<thisType>(new thisType(std::forward<Args>(args)...));
+		static base::SharedPtr<thisType> create(Args&&... args) {
+			return base::SharedPtr<thisType>(new thisType(std::forward<Args>(args)...));
 		}
 
 	public:
@@ -35,9 +34,9 @@ namespace rolling {
 		virtual void Update(rolling::Matrix4x4& modelViewTransform);
 		virtual void Render(rolling::Matrix4x4& modelViewTransform);
 
-		void AddChild(SharedPtr<Node2D> child);
-		void RemoveChild(SharedPtr<Node2D> child);
-		void SetParent(WeakPtr<Node2D> parent);
+		void AddChild(base::SharedPtr<Node2D> child);
+		void RemoveChild(base::SharedPtr<Node2D> child);
+		void SetParent(base::WeakPtr<Node2D> parent);
 
 		rolling::Matrix4x4 GetLocalTransform();
 		void SetPosition(float x, float y);
@@ -51,8 +50,8 @@ namespace rolling {
 		}
 
 	protected:
-		std::vector<rolling::SharedPtr<Node2D>> m_Children;
-		rolling::WeakPtr<Node2D> m_Parent;
+		std::vector<base::SharedPtr<Node2D>> m_Children;
+		base::WeakPtr<Node2D> m_Parent;
 		World2D* m_World = nullptr;
 
 		rolling::Matrix4x4 m_LocalTransform;

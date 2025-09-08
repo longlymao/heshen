@@ -10,7 +10,6 @@ add_library(rolling-render STATIC
 	"src/scene/node/node3d.h" "src/scene/node/node3d.cpp"
 	"src/scene/node/cube.h" "src/scene/node/cube.cpp"
 	"src/base/color.h"
-	"src/base/ref.h"
 	"src/renderer/renderer.h"
 	"src/scene/node/line2d.h" "src/scene/node/line2d.cpp"
 	"src/renderer/commandlist.h"
@@ -24,11 +23,14 @@ add_library(rolling-render STATIC
 	"src/app/input/inputmanager.h" "src/app/input/inputmanager.cpp" "src/scene/world/playercontrol.h" "src/scene/world/playercontrol.cpp")
 
 target_include_directories(rolling-render PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
+target_link_libraries(rolling-render PRIVATE smart_ptr)
 target_link_libraries(rolling-render PRIVATE rolling-math)
 
 add_executable(rolling-render-test WIN32
 	"test/rendertest.cpp"
 )
 
+target_link_libraries(rolling-render-test PRIVATE smart_ptr)
 target_link_libraries(rolling-render-test PRIVATE rolling-render)
 target_link_libraries(rolling-render-test PRIVATE rolling-math)
