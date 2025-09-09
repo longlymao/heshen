@@ -6,6 +6,7 @@
 
 #include "scene/node/line2d.h"
 #include "scene/node/cube.h"
+#include "scene/node/line3d.h"
 
 static int WINAPI WinMain(
 	HINSTANCE hInstance,
@@ -49,26 +50,42 @@ static int WINAPI WinMain(
 	rolling::World3D* world3d = new rolling::World3D();
 	app.GetScene().AddWorld(world3d);
 
-	rolling::base::SharedPtr<rolling::Cube> cube = rolling::Cube::create();
-	cube->SetPosition(0, 0, 0);
-	cube->SetScale(1, 1, 1);
-	cube->SetWidth(100);
-	cube->SetHeight(100);
-	cube->SetDepth(100);
-	cube->SetColor(0, rolling::Color::RED);
-	cube->SetColor(1, rolling::Color::GREEN);
-	cube->SetColor(2, rolling::Color::BLUE);
-	cube->SetColor(3, rolling::Color::WHITE);
-	cube->SetColor(4, rolling::Color::YELLOW);
-	cube->SetColor(5, rolling::Color::CYAN);
-	cube->SetColor(6, rolling::Color::MAGENTA);
-	cube->SetColor(7, rolling::Color::WHITE);
-	world3d->AddNode(cube);
+	// rolling::base::SharedPtr<rolling::Cube> cube = rolling::Cube::create();
+	// cube->SetPosition(0, 0, 0);
+	// cube->SetScale(1, 1, 1);
+	// cube->SetWidth(100);
+	// cube->SetHeight(100);
+	// cube->SetDepth(100);
+	// cube->SetColor(0, rolling::Color::RED);
+	// cube->SetColor(1, rolling::Color::GREEN);
+	// cube->SetColor(2, rolling::Color::BLUE);
+	// cube->SetColor(3, rolling::Color::WHITE);
+	// cube->SetColor(4, rolling::Color::YELLOW);
+	// cube->SetColor(5, rolling::Color::CYAN);
+	// cube->SetColor(6, rolling::Color::MAGENTA);
+	// cube->SetColor(7, rolling::Color::WHITE);
+	// world3d->AddNode(cube);
+
+	world3d->GetCamera().SetEye(rolling::VectorF3(50, 40, 10));
+	world3d->GetCamera().SetTarget(rolling::VectorF3(50, 40, 310));
+
+	auto AddLine3D = [&](int x1, int y1, int z1, int x2, int y2, int z2,
+		rolling::Color color1 = rolling::Color::WHITE, rolling::Color color2 = rolling::Color::WHITE) {
+
+		rolling::base::SharedPtr<rolling::Line3D> line = rolling::Line3D::create();
+		line->SetPos1({x1, y1, z1});
+		line->SetPos2({x2, y2, z2});
+		world3d->AddNode(line);
+		line->SetColor1(color1);
+		line->SetColor2(color2);
+		};
 
 	//rolling::SharedPtr<rolling::Line> line = rolling::SharedPtr<rolling::Line>(new rolling::Line());
 
-	//AddLine(0, -100, 100, 0, 100, 100);
-	//AddLine(-100, 0, 100, 100, 0, 100);
+	// AddLine3D(0, -100, 100, 0, 100, 100);
+	// AddLine3D(-100, 0, 100, 100, 0, 100);
+
+	AddLine3D(0,0,0,0,0,100, rolling::Color::BLUE, rolling::Color::RED);
 
 	//AddLine(0, -100, 200, 0, 100, 200);
 	//AddLine(-100, 0, 200, 100, 0, 200);

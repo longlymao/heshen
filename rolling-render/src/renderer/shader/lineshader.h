@@ -101,10 +101,10 @@ namespace rolling {
 			ViewportTransformation(input.pos2);
 
 			auto BresenhamX = [&](){
-					int x1 = input.pos1[0];
-					int y1 = input.pos1[1];
-					int x2 = input.pos2[0];
-					int y2 = input.pos2[1];
+					int x1 = std::clamp(input.pos1[0], 0.0f, (float)viewportWidth - 1);
+					int y1 = std::clamp(input.pos1[1], 0.0f, (float)viewportHeight - 1);
+					int x2 = std::clamp(input.pos2[0], 0.0f, (float)viewportWidth - 1);
+					int y2 = std::clamp(input.pos2[1], 0.0f, (float)viewportHeight - 1);
 
 					int x = x1;
 					int y = y1;
@@ -136,11 +136,11 @@ namespace rolling {
 				};
 
 			auto BresenhamY = [&]() {
-					int x1 = input.pos1[0];
-					int y1 = input.pos1[1];
-					int x2 = input.pos2[0];
-					int y2 = input.pos2[1];
-
+					int x1 = std::clamp(input.pos1[0], 0.0f, (float)viewportWidth - 1);
+					int y1 = std::clamp(input.pos1[1], 0.0f, (float)viewportHeight - 1);
+					int x2 = std::clamp(input.pos2[0], 0.0f, (float)viewportWidth - 1);
+					int y2 = std::clamp(input.pos2[1], 0.0f, (float)viewportHeight - 1);
+					
 					int x = x1;
 					int y = y1;
 

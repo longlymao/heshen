@@ -4,6 +4,7 @@
 
 #include "world3d.h"
 #include "scene/camera/camera3d.h"
+#include <iostream>
 
 namespace rolling {
 	PlayerControl::PlayerControl(World3D* world):
@@ -47,6 +48,11 @@ namespace rolling {
 
 		if (!localMove.IsZero()) {
 			m_World->GetCamera().MoveLocal(localMove);
+			// 实时打印摄像机位置
+			auto eye = m_World->GetCamera().eye;
+			auto target = m_World->GetCamera().target;
+			std::cout << "Camera Eye: (" << eye[0] << ", " << eye[1] << ", " << eye[2] << ")"
+					<< " Target: (" << target[0] << ", " << target[1] << ", " << target[2] << ")" << std::endl;
 		}
 
 		// Handle mouse movement
@@ -59,6 +65,12 @@ namespace rolling {
 			float yaw = mouseMoveX * sensitivity;
 			float pitch = mouseMoveY * sensitivity;
 			m_World->GetCamera().RotateLocal(yaw, -pitch);
+
+			// 实时打印摄像机位置
+			auto eye = m_World->GetCamera().eye;
+			auto target = m_World->GetCamera().target;
+			std::cout << "Camera Eye: (" << eye[0] << ", " << eye[1] << ", " << eye[2] << ")"
+					<< " Target: (" << target[0] << ", " << target[1] << ", " << target[2] << ")" << std::endl;
 		}
 	}
 

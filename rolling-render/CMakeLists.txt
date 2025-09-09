@@ -12,6 +12,7 @@ add_library(rolling-render STATIC
 	"src/base/color.h"
 	"src/renderer/renderer.h"
 	"src/scene/node/line2d.h" "src/scene/node/line2d.cpp"
+	"src/scene/node/line3d.h" "src/scene/node/line3d.cpp"
 	"src/renderer/commandlist.h"
 	"src/renderer/shader/lineshader.h"
 	"src/renderer/shader/shaders.h"
@@ -20,7 +21,8 @@ add_library(rolling-render STATIC
 	"src/renderer/renderer.cpp"
 	"src/scene/world/world3d.h" "src/scene/world/world3d.cpp"
 	"src/scene/camera/camera3d.h" "src/scene/camera/camera3d.cpp"
-	"src/app/input/inputmanager.h" "src/app/input/inputmanager.cpp" "src/scene/world/playercontrol.h" "src/scene/world/playercontrol.cpp")
+	"src/app/input/inputmanager.h" "src/app/input/inputmanager.cpp"
+	 "src/scene/world/playercontrol.h" "src/scene/world/playercontrol.cpp")
 
 target_include_directories(rolling-render PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
