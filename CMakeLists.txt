@@ -10,7 +10,7 @@ endif()
 project(heshen)
 
 add_subdirectory(base)
-
+add_subdirectory(network)
 add_subdirectory(rolling-math)
 add_subdirectory(rolling-utils)
 add_subdirectory(rolling-audio)
