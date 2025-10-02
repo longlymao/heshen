@@ -5,11 +5,13 @@
  */
 #pragma once
 
+#include <WinSock2.h>
 #include <vector>
 #include <thread>
-#include "windowsclean.h"
+#include <winsock2.h>
+#include <windows.h>
 
-#include "client/iocpclient.h"
+class IocpServer;
 
 class IocpWorker {
     constexpr static int THREAD_COUNT_DEFAULT = 1;
@@ -28,13 +30,8 @@ private:
     void WorkThreadProc();
 
 public:
-	void Post(IocpClient* client);
-
-private:
-	void Connect(IocpClient* client);
-	void Send(IocpClient* client);
-	void Read(IocpClient* client);
-    void test();
+    void AssociateSocket(SOCKET socket, ULONG_PTR completionKey);
+    HANDLE GetIoCompletionPort() const;
 
 private:
     HANDLE iocp = nullptr;

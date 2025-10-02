@@ -4,12 +4,12 @@
  * MIT License
  */
 #pragma once
-#include "windowsclean.h"
 #include <WinSock2.h>
 #include <string>
 
 enum class IocpOperation {
 	NONE,
+	TO_ACCEPT,
 	ACCEPT,
 	CONNECT,
 	READ,

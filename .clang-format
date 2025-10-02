@@ -1,0 +1,12 @@
+# 通用 C/C++ 格式化配置（4空格缩进、适配多数场景）
+BasedOnStyle: LLVM  # 基础样式（可替换为 Google、Microsoft 等）
+IndentWidth: 4      # 缩进宽度：4个空格
+UseTab: Never       # 禁用制表符，全部用空格
+ContinuationIndentWidth: 4  # 代码换行后的缩进宽度（如函数参数换行）
+NamespaceIndentation: All   # 命名空间内的代码全部缩进
+IndentCaseLabels: false     # switch case 标签不额外缩进
+AlignAfterOpenBracket: Align  # 括号后内容对齐（如函数参数）
+SpaceBeforeParens: ControlStatements  # 控制语句（if/for）括号前加空格
+BinPackParameters: false    # 函数参数每行一个（避免过长）
+BinPackArguments: false     # 函数调用参数每行一个
+AllowShortFunctionsOnASingleLine: None  # 禁止短函数写在一行
