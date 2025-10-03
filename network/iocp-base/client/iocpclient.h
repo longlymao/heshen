@@ -6,11 +6,12 @@
 #pragma once
 
 #include "iocpcontext.h"
+#include "core/iocpcore.h"
 #include <string>
 
-class IocpClient {
+class IocpClient : public IocpCore {
 public:
-	IocpClient(const std::string& host, uint16_t port);
+	IocpClient(IocpWorker& worker);
 	~IocpClient();
 
 	void SetRequest(const std::string& request);
@@ -19,11 +20,19 @@ public:
 	void OnFailed();
 	void OnSuccess();
 
+	void OnConnectSuccess();
+	void OnConnectFailed();
+
 	void AppendResponse(const std::string& response);
 
 	IocpContext& GetContext() { return context; }
 	std::string GetHost() { return host; }
 	uint16_t GetPort() { return port; }
+
+	void ConnectToServer(const std::string& host, uint16_t port);
+
+	void PostConnect(IocpContext* context);
+	void Connect(IocpContext* context);
 
 private:
 	IocpContext context;
@@ -32,4 +41,8 @@ private:
 
 	std::string request;
 	std::string response;
+	
+	IocpContext connect_context;
+	IocpContext read_context;
+	IocpContext write_context;
 };

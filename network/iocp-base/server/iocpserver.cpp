@@ -10,6 +10,13 @@ IocpServer::IocpServer(IocpWorker &worker) : IocpCore(worker) {
     accept_context.buffer.resize((sizeof(sockaddr_in) + 16) * 2); 
 }
 
+IocpServer::~IocpServer() {
+    if (listen_socket != INVALID_SOCKET) {
+        closesocket(listen_socket);
+        listen_socket = INVALID_SOCKET;
+    }
+}
+
 bool IocpServer::listen(int port) {
     listen_socket = WSASocketW(
         AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
@@ -23,11 +30,6 @@ bool IocpServer::listen(int port) {
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = INADDR_ANY;
     serverAddr.sin_port = htons(port);
-
-    for(char * c = reinterpret_cast<char*>(&serverAddr); c < reinterpret_cast<char*>(&serverAddr) + sizeof(serverAddr); c++) {
-        std::cout << std::hex << (int)(unsigned char)(*c) << " ";
-    }
-    std::cout << std::dec << std::endl;
 
     if (bind(listen_socket, (SOCKADDR *)&serverAddr, sizeof(serverAddr)) ==
         SOCKET_ERROR) {
@@ -47,18 +49,6 @@ bool IocpServer::listen(int port) {
     worker_.AssociateSocket(listen_socket, reinterpret_cast<ULONG_PTR>(this));
     PostAccept(&accept_context);
     return true;
-}
-
-void IocpServer::OnReadReady() {
-    // Handle read events
-}
-
-void IocpServer::OnWriteReady() {
-    // Handle write events
-}
-
-void IocpServer::OnConnectReady() {
-    // Handle connect events
 }
 
 void IocpServer::OnNewConnection(SOCKET client_socket) {

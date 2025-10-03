@@ -7,16 +7,14 @@ class IocpServer : public IocpCore
 {
 public:
     explicit IocpServer(IocpWorker& worker);
+    ~IocpServer();
 
     bool listen(int port);
 
-    void OnReadReady() override;
-    void OnWriteReady() override;
-    void OnConnectReady() override;
-    void OnNewConnection(SOCKET client_socket) override;
-    void OnClose() override;
-    void OnSuccess() override;
-    void OnFailed() override;
+    void OnNewConnection(SOCKET client_socket);
+    void OnClose();
+    void OnSuccess();
+    void OnFailed();
 
 public:
     void PostAccept(IocpContext* context);

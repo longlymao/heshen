@@ -2,6 +2,7 @@ add_library(iocpbase STATIC
     worker/iocpworker.h worker/iocpworker.cpp
     core/iocpcore.h core/iocpcore.cpp
     server/iocpserver.h server/iocpserver.cpp
+    client/iocpclient.h client/iocpclient.cpp
 )
 
 target_include_directories(iocpbase PUBLIC

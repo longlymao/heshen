@@ -12,30 +12,7 @@
 
 #include "iocpcontext.h"
 #include "server/iocpserver.h"
-
-static LPFN_CONNECTEX LoadConnectEx() {
-    GUID guid = WSAID_CONNECTEX;
-    LPFN_CONNECTEX connectEx = nullptr;
-    DWORD bytes = 0;
-    SOCKET socket = WSASocketW(
-        AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
-    WSAIoctl(socket,
-             SIO_GET_EXTENSION_FUNCTION_POINTER,
-             &guid,
-             sizeof(guid),
-             &connectEx,
-             sizeof(connectEx),
-             &bytes,
-             nullptr,
-             nullptr);
-    closesocket(socket);
-    return connectEx;
-}
-
-static LPFN_CONNECTEX GetConnectEx() {
-    static LPFN_CONNECTEX connectEx = LoadConnectEx();
-    return connectEx;
-}
+#include "client/iocpclient.h"
 
 IocpWorker::IocpWorker(int threadCount) : threadCount(threadCount) {
     WSADATA wsaData;
@@ -96,6 +73,29 @@ void IocpWorker::WorkThreadProc() {
             break;
         }
 
+        if(!result){
+            DWORD errorCode = WSAGetLastError();
+            
+            if (errorCode == ERROR_OPERATION_ABORTED) {
+                std::cout << "operation has been canceled" << std::endl;
+                break;
+            }
+
+            char errorMsg[256] = {0};
+            FormatMessageA(
+                FORMAT_MESSAGE_FROM_SYSTEM,
+                NULL,
+                errorCode,
+                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                errorMsg,
+                sizeof(errorMsg),
+                NULL
+            );
+
+            std::cerr << "GetQueuedCompletionStatus failed with error: " << errorCode
+                      << " - " << errorMsg << std::endl;
+        }
+
         if (!result && overlapped == nullptr) {
             std::cerr << "GetQueuedCompletionStatus failed: " << GetLastError()
                       << std::endl;
@@ -113,6 +113,7 @@ void IocpWorker::WorkThreadProc() {
 
         IocpContext *pContext =
             CONTAINING_RECORD(overlapped, IocpContext, overlapped);
+
         switch (pContext->operation) {
         case IocpOperation::TO_ACCEPT:
             dynamic_cast<IocpServer*>(core)->Accept(pContext);
@@ -121,14 +122,15 @@ void IocpWorker::WorkThreadProc() {
             dynamic_cast<IocpServer*>(core)->OnNewConnection(pContext->socket);
             dynamic_cast<IocpServer*>(core)->PostAccept(pContext);
             break;
+        case IocpOperation::TO_CONNECT:
+            dynamic_cast<IocpClient*>(core)->Connect(pContext);
+            break;
         case IocpOperation::CONNECT:
-            core->OnConnectReady();
-            break;
-        case IocpOperation::READ:
-            core->OnReadReady();
-            break;
-        case IocpOperation::WRITE:
-            core->OnWriteReady();
+            if (result) {
+                dynamic_cast<IocpClient*>(core)->OnConnectSuccess();
+            } else {
+                dynamic_cast<IocpClient*>(core)->OnConnectFailed();
+            }
             break;
         default:
             std::cerr << "Unknown operation" << std::endl;
