@@ -34,6 +34,11 @@ public:
 	void PostConnect(IocpContext* context);
 	void Connect(IocpContext* context);
 
+	void PostRead(IocpContext* context);
+	void Read(IocpContext* context);
+
+	void OnRecv(IocpContext* context, DWORD bytesTransferred);
+
 private:
 	IocpContext context;
 	std::string host;

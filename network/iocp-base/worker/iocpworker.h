@@ -14,7 +14,7 @@
 class IocpServer;
 
 class IocpWorker {
-    constexpr static int THREAD_COUNT_DEFAULT = 1;
+    constexpr static int THREAD_COUNT_DEFAULT = 2;
 
 public:
     explicit IocpWorker(int threadCount = THREAD_COUNT_DEFAULT);

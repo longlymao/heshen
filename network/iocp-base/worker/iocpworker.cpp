@@ -9,10 +9,10 @@
 #include <WS2tcpip.h>
 #include <iostream>
 
-
+#include "client/iocpclient.h"
 #include "iocpcontext.h"
 #include "server/iocpserver.h"
-#include "client/iocpclient.h"
+
 
 IocpWorker::IocpWorker(int threadCount) : threadCount(threadCount) {
     WSADATA wsaData;
@@ -73,27 +73,25 @@ void IocpWorker::WorkThreadProc() {
             break;
         }
 
-        if(!result){
+        if (!result) {
             DWORD errorCode = WSAGetLastError();
-            
+
             if (errorCode == ERROR_OPERATION_ABORTED) {
                 std::cout << "operation has been canceled" << std::endl;
                 break;
             }
 
             char errorMsg[256] = {0};
-            FormatMessageA(
-                FORMAT_MESSAGE_FROM_SYSTEM,
-                NULL,
-                errorCode,
-                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                errorMsg,
-                sizeof(errorMsg),
-                NULL
-            );
+            FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,
+                           NULL,
+                           errorCode,
+                           MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                           errorMsg,
+                           sizeof(errorMsg),
+                           NULL);
 
-            std::cerr << "GetQueuedCompletionStatus failed with error: " << errorCode
-                      << " - " << errorMsg << std::endl;
+            std::cerr << "GetQueuedCompletionStatus failed with error: "
+                      << errorCode << " - " << errorMsg << std::endl;
         }
 
         if (!result && overlapped == nullptr) {
@@ -109,27 +107,41 @@ void IocpWorker::WorkThreadProc() {
             break;
         }
 
-		std::cout << "bytesTransferred: " << bytesTransferred << std::endl;
-
         IocpContext *pContext =
             CONTAINING_RECORD(overlapped, IocpContext, overlapped);
 
+        std::cout << "bytesTransferred: " << bytesTransferred
+                  << " operation: " << (int)pContext->operation
+                  << " threadid: " << GetCurrentThreadId() << std::endl;
+
         switch (pContext->operation) {
         case IocpOperation::TO_ACCEPT:
-            dynamic_cast<IocpServer*>(core)->Accept(pContext);
+            dynamic_cast<IocpServer *>(core)->Accept(pContext);
             break;
         case IocpOperation::ACCEPT:
-            dynamic_cast<IocpServer*>(core)->OnNewConnection(pContext->socket);
-            dynamic_cast<IocpServer*>(core)->PostAccept(pContext);
+            dynamic_cast<IocpServer *>(core)->OnNewConnection(pContext->socket);
+            dynamic_cast<IocpServer *>(core)->PostAccept(pContext);
             break;
         case IocpOperation::TO_CONNECT:
-            dynamic_cast<IocpClient*>(core)->Connect(pContext);
+            dynamic_cast<IocpClient *>(core)->Connect(pContext);
             break;
         case IocpOperation::CONNECT:
             if (result) {
-                dynamic_cast<IocpClient*>(core)->OnConnectSuccess();
+                dynamic_cast<IocpClient *>(core)->OnConnectSuccess();
             } else {
-                dynamic_cast<IocpClient*>(core)->OnConnectFailed();
+                dynamic_cast<IocpClient *>(core)->OnConnectFailed();
+            }
+            break;
+        case IocpOperation::TO_READ:
+            dynamic_cast<IocpClient *>(core)->Read(pContext);
+            break;
+        case IocpOperation::READ:
+            if (result) {
+                dynamic_cast<IocpClient *>(core)->OnRecv(pContext,
+                                                         bytesTransferred);
+                dynamic_cast<IocpClient *>(core)->PostRead(pContext);
+            } else {
+                std::cerr << "Read operation failed" << std::endl;
             }
             break;
         default:

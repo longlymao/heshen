@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2025 longlymao
+ * All rights reserved.
+ * MIT License
+ */
+ 
 #include "iocpcore.h"
 #include <iostream>
 

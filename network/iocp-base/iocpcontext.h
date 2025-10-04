@@ -13,7 +13,9 @@ enum class IocpOperation {
 	ACCEPT,
 	TO_CONNECT,
 	CONNECT,
+	TO_READ,
 	READ,
+	TO_WRITE,
 	WRITE,
 };
 

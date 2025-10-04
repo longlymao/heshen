@@ -7,6 +7,7 @@
 #include "worker/iocpworker.h"
 #include <iostream>
 #include <mswsock.h>
+#include <synchapi.h>
 #include <ws2tcpip.h>
 
 IocpClient::IocpClient(IocpWorker &worker) : IocpCore(worker) {
@@ -67,6 +68,9 @@ void IocpClient::OnConnectSuccess() {
 
     std::cout << "Success to connect to server local: " << localIp << ":" << localPort
               << " -> Server: " << serverIp << ":" << serverPort << std::endl;
+
+    read_context.socket = connect_context.socket;
+    PostRead(&read_context);
 }
 
 void IocpClient::OnConnectFailed() {
@@ -148,5 +152,60 @@ void IocpClient::Connect(IocpContext *context) {
                       << std::endl;
             OnConnectFailed();
         }
+    }
+}
+
+void IocpClient::PostRead(IocpContext* context) {
+    std::cout << "PostRead called, threadid: " << GetCurrentThreadId() << std::endl;
+    context->operation = IocpOperation::TO_READ;
+    context->bytesTransferred = 0;
+    context->overlapped = {};
+
+    PostQueuedCompletionStatus(
+        worker_.GetIoCompletionPort(),
+        0,
+        reinterpret_cast<ULONG_PTR>(dynamic_cast<IocpCore *>(this)),
+        &context->overlapped);
+}
+
+void IocpClient::Read(IocpContext* context) {
+    std::cout << "Read called, threadid: " << GetCurrentThreadId() << std::endl;
+    context->buffer.resize(1024);
+    context->wsaBuf.buf = context->buffer.data();
+    context->wsaBuf.len = static_cast<ULONG>(context->buffer.size());
+    context->operation = IocpOperation::READ;
+
+    DWORD flags = 0;
+    DWORD bytesReceived = 0;
+    int rc = WSARecv(context->socket,
+                     &context->wsaBuf,
+                     1,
+                     &bytesReceived,
+                     &flags,
+                     &context->overlapped,
+                     nullptr);
+
+    if(rc == 0) {
+        // sorry i found that even if synchronous complete, it still will post to iocp queue
+        // OnRecv(context, bytesReceived);
+        // PostRead(context);
+    }
+    else {
+        if (WSAGetLastError() != ERROR_IO_PENDING) {
+            std::cerr << "WSARecv failed with error: " << WSAGetLastError()
+                      << std::endl;
+        }
+        else{
+            std::cout << "WSARecv pending, waiting for completion..." << std::endl;
+        }
+    }
+}
+
+void IocpClient::OnRecv(IocpContext* context, DWORD bytesTransferred) {
+    if (bytesTransferred > 0) {
+        std::string data(context->wsaBuf.buf, bytesTransferred);
+        std::cout << "Received " << bytesTransferred << " bytes: " << data << std::endl;
+    } else {
+        std::cout << "Connection closed by server." << std::endl;
     }
 }
