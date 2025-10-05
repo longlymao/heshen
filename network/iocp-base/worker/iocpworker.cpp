@@ -144,6 +144,16 @@ void IocpWorker::WorkThreadProc() {
                 std::cerr << "Read operation failed" << std::endl;
             }
             break;
+        case IocpOperation::TO_WRITE:
+            dynamic_cast<IocpClient *>(core)->Write(pContext);
+            break;
+        case IocpOperation::WRITE:
+            if (result) {
+                dynamic_cast<IocpClient *>(core)->OnWriteComplete(pContext, bytesTransferred);
+            } else {
+                dynamic_cast<IocpClient *>(core)->OnWriteFailed();
+            }
+            break;
         default:
             std::cerr << "Unknown operation" << std::endl;
             break;

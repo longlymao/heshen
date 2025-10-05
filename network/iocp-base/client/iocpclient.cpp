@@ -7,6 +7,8 @@
 #include "worker/iocpworker.h"
 #include <iostream>
 #include <mswsock.h>
+#include <mutex>
+#include <processthreadsapi.h>
 #include <synchapi.h>
 #include <ws2tcpip.h>
 
@@ -14,27 +16,13 @@ IocpClient::IocpClient(IocpWorker &worker) : IocpCore(worker) {
 }
 
 IocpClient::~IocpClient() {
-	if(connect_context.socket != INVALID_SOCKET) {
-		closesocket(connect_context.socket);
-		connect_context.socket = INVALID_SOCKET;
-	}
-}
-
-void IocpClient::SetRequest(const std::string &request) {
-    this->request = request;
-    context.buffer = request;
-}
-
-std::string IocpClient::GetResponse() {
-    return response;
-}
-
-void IocpClient::OnFailed() {
-    std::cerr << "Request failed" << std::endl;
-}
-
-void IocpClient::OnSuccess() {
-    std::cout << "Request succeeded" << std::endl;
+    if (connect_context.socket != INVALID_SOCKET) {
+        CancelIoEx((HANDLE)connect_context.socket, NULL);
+        closesocket(connect_context.socket);
+        connect_context.socket = INVALID_SOCKET;
+        read_context.socket = INVALID_SOCKET;
+        write_context.socket = INVALID_SOCKET;
+    }
 }
 
 void IocpClient::OnConnectSuccess() {
@@ -66,19 +54,23 @@ void IocpClient::OnConnectSuccess() {
     inet_ntop(AF_INET, &serverAddr.sin_addr, serverIp, INET_ADDRSTRLEN);
     u_short serverPort = ntohs(serverAddr.sin_port);
 
-    std::cout << "Success to connect to server local: " << localIp << ":" << localPort
-              << " -> Server: " << serverIp << ":" << serverPort << std::endl;
+    std::cout << "Success to connect to server local: " << localIp << ":"
+              << localPort << " -> Server: " << serverIp << ":" << serverPort
+              << std::endl;
+
+    socket_state = SOCKET_STATE::CONNECTED;
 
     read_context.socket = connect_context.socket;
     PostRead(&read_context);
+    write_context.socket = connect_context.socket;
+    CheckPostWrite();
 }
 
 void IocpClient::OnConnectFailed() {
-    std::cerr << "Failed to connect to server " << GetHost() << ":" << GetPort() << std::endl;
-}
+    std::cerr << "Failed to connect to server " << GetHost() << ":" << GetPort()
+              << std::endl;
 
-void IocpClient::AppendResponse(const std::string &response) {
-    this->response += response;
+    socket_state = SOCKET_STATE::CLOSED;
 }
 
 void IocpClient::ConnectToServer(const std::string &host, uint16_t port) {
@@ -115,6 +107,10 @@ void IocpClient::ConnectToServer(const std::string &host, uint16_t port) {
 }
 
 void IocpClient::PostConnect(IocpContext *context) {
+    std::cout << "PostConnect called, threadid: " << GetCurrentThreadId() << std::endl;
+
+    socket_state = SOCKET_STATE::CONNECTING;
+
     context->operation = IocpOperation::TO_CONNECT;
     context->bytesTransferred = 0;
     context->overlapped = {};
@@ -155,8 +151,9 @@ void IocpClient::Connect(IocpContext *context) {
     }
 }
 
-void IocpClient::PostRead(IocpContext* context) {
-    std::cout << "PostRead called, threadid: " << GetCurrentThreadId() << std::endl;
+void IocpClient::PostRead(IocpContext *context) {
+    std::cout << "PostRead called, threadid: " << GetCurrentThreadId()
+              << std::endl;
     context->operation = IocpOperation::TO_READ;
     context->bytesTransferred = 0;
     context->overlapped = {};
@@ -168,7 +165,7 @@ void IocpClient::PostRead(IocpContext* context) {
         &context->overlapped);
 }
 
-void IocpClient::Read(IocpContext* context) {
+void IocpClient::Read(IocpContext *context) {
     std::cout << "Read called, threadid: " << GetCurrentThreadId() << std::endl;
     context->buffer.resize(1024);
     context->wsaBuf.buf = context->buffer.data();
@@ -185,27 +182,119 @@ void IocpClient::Read(IocpContext* context) {
                      &context->overlapped,
                      nullptr);
 
-    if(rc == 0) {
-        // sorry i found that even if synchronous complete, it still will post to iocp queue
-        // OnRecv(context, bytesReceived);
-        // PostRead(context);
-    }
-    else {
+    if (rc == 0) {
+        // sorry i found that even if synchronous complete, it still will post
+        // to iocp queue OnRecv(context, bytesReceived); PostRead(context);
+    } else {
         if (WSAGetLastError() != ERROR_IO_PENDING) {
             std::cerr << "WSARecv failed with error: " << WSAGetLastError()
                       << std::endl;
-        }
-        else{
-            std::cout << "WSARecv pending, waiting for completion..." << std::endl;
+        } else {
+            std::cout << "WSARecv pending, waiting for completion..."
+                      << std::endl;
         }
     }
 }
 
-void IocpClient::OnRecv(IocpContext* context, DWORD bytesTransferred) {
+void IocpClient::OnRecv(IocpContext *context, DWORD bytesTransferred) {
     if (bytesTransferred > 0) {
         std::string data(context->wsaBuf.buf, bytesTransferred);
-        std::cout << "Received " << bytesTransferred << " bytes: " << data << std::endl;
+        std::cout << "Received " << bytesTransferred << " bytes: " << data
+                  << std::endl;
     } else {
         std::cout << "Connection closed by server." << std::endl;
     }
+}
+
+void IocpClient::Send(const std::string &data) {
+    {
+        std::lock_guard<std::mutex> lock(write_mutex);
+        write_queue.push(data);
+    }
+    CheckPostWrite();
+}
+
+void IocpClient::CheckPostWrite() {
+    std::lock_guard<std::mutex> lock(write_mutex);
+    if (socket_state == SOCKET_STATE::CONNECTED && write_state == WRITE_STATE::IDLE && !write_queue.empty()) {
+        write_context.buffer = write_queue.front();
+        write_queue.pop();
+        write_state = WRITE_STATE::POSTING;
+        PostWrite(&write_context);
+    }
+}
+
+void IocpClient::PostWrite(IocpContext *context) {
+    std::cout << "PostWrite called, threadid: " << GetCurrentThreadId()
+              << std::endl;
+    context->operation = IocpOperation::TO_WRITE;
+    context->bytesTransferred = 0;
+    context->overlapped = {};
+
+    PostQueuedCompletionStatus(
+        worker_.GetIoCompletionPort(),
+        0,
+        reinterpret_cast<ULONG_PTR>(dynamic_cast<IocpCore *>(this)),
+        &context->overlapped);
+}
+
+void IocpClient::Write(IocpContext *context) {
+    std::cout << "Write called, threadid: " << GetCurrentThreadId()
+              << std::endl;
+    context->operation = IocpOperation::WRITE;
+    context->wsaBuf.buf = const_cast<char *>(context->buffer.data()) + context->bytesTransferred;
+    context->wsaBuf.len = static_cast<ULONG>(context->buffer.size() - context->bytesTransferred);
+
+    DWORD bytesSent = 0;
+    int rc = WSASend(context->socket,
+                     &context->wsaBuf,
+                     1,
+                     &bytesSent,
+                     0,
+                     &context->overlapped,
+                     nullptr);
+
+    if (rc == 0) {
+        // sorry i found that even if synchronous complete, it still will post
+        // to iocp queue OnWrite(context, bytesSent); CheckPostWrite();
+    } else {
+        if (WSAGetLastError() != ERROR_IO_PENDING) {
+            std::cerr << "WSASend failed with error: " << WSAGetLastError()
+                      << std::endl;
+            {
+                std::lock_guard<std::mutex> lock(write_mutex);
+                write_state = WRITE_STATE::IDLE;
+            }
+        } else {
+            std::cout << "WSASend pending, waiting for completion..."
+                      << std::endl;
+            {
+                std::lock_guard<std::mutex> lock(write_mutex);
+                write_state = WRITE_STATE::WRITING;
+            }
+        }
+    }
+}
+
+void IocpClient::OnWriteComplete(IocpContext *context, DWORD bytesTransferred) {
+    std::string data(context->wsaBuf.buf, bytesTransferred);
+    std::cout << "OnWriteComplete called, threadid: " << GetCurrentThreadId()
+              << ", sent data: " << data << std::endl;
+
+    context->bytesTransferred += bytesTransferred;
+    if (context->bytesTransferred < context->buffer.size()) {
+        // Not all data sent, continue sending
+        Write(context);
+    } else {
+        std::cout << "Sent " << context->bytesTransferred << " bytes successfully." << std::endl;
+        {
+            std::lock_guard<std::mutex> lock(write_mutex);
+            write_state = WRITE_STATE::IDLE;
+        }
+        CheckPostWrite();
+    }
+}
+
+void IocpClient::OnWriteFailed() {
+    std::cerr << "Write operation failed." << std::endl;
 }

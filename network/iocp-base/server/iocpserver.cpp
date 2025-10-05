@@ -126,12 +126,16 @@ void IocpServer::Accept(IocpContext *context) {
                       &context->overlapped);
 
     if (rc == TRUE) {
+        std::cout << "AcceptEx completed immediately." << std::endl;
         OnNewConnection(accept_socket);
         PostAccept(context);
     } else {
         if (WSAGetLastError() != ERROR_IO_PENDING) {
             std::cerr << "AcceptEx Failed: " << WSAGetLastError() << std::endl;
             closesocket(accept_socket);
+        }
+        else{
+            std::cout << "AcceptEx is pending..." << std::endl;
         }
     }
 }
