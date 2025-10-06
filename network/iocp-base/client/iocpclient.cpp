@@ -5,12 +5,12 @@
  */
 #include "iocpclient.h"
 #include "worker/iocpworker.h"
-#include <iostream>
 #include <mswsock.h>
 #include <mutex>
 #include <processthreadsapi.h>
 #include <synchapi.h>
 #include <ws2tcpip.h>
+#include "spdlog/spdlog.h"
 
 IocpClient::IocpClient(IocpWorker &worker) : IocpCore(worker) {
 }
@@ -26,7 +26,7 @@ IocpClient::~IocpClient() {
 }
 
 void IocpClient::OnConnectSuccess() {
-    std::cout << "Connected to server successfully" << std::endl;
+    spdlog::info("Connected to server successfully");
 
     int optVal = 0;
     int optLen = sizeof(optVal);
@@ -35,8 +35,8 @@ void IocpClient::OnConnectSuccess() {
                    SO_UPDATE_CONNECT_CONTEXT,
                    (char *)&optVal,
                    optLen) == SOCKET_ERROR) {
-        std::cerr << "Failed to update connect context, error code: "
-                  << WSAGetLastError() << std::endl;
+        spdlog::error("Failed to update connect context, error code: {}",
+                      WSAGetLastError());
     }
 
     sockaddr_in localAddr;
@@ -54,9 +54,8 @@ void IocpClient::OnConnectSuccess() {
     inet_ntop(AF_INET, &serverAddr.sin_addr, serverIp, INET_ADDRSTRLEN);
     u_short serverPort = ntohs(serverAddr.sin_port);
 
-    std::cout << "Success to connect to server local: " << localIp << ":"
-              << localPort << " -> Server: " << serverIp << ":" << serverPort
-              << std::endl;
+    spdlog::info("Success to connect to server local: {}:{} -> Server: {}:{}",
+                  localIp, localPort, serverIp, serverPort);
 
     socket_state = SOCKET_STATE::CONNECTED;
 
@@ -67,8 +66,7 @@ void IocpClient::OnConnectSuccess() {
 }
 
 void IocpClient::OnConnectFailed() {
-    std::cerr << "Failed to connect to server " << GetHost() << ":" << GetPort()
-              << std::endl;
+    spdlog::error("Failed to connect to server {}:{}", GetHost(), GetPort());
 
     socket_state = SOCKET_STATE::CLOSED;
 }
@@ -85,8 +83,7 @@ void IocpClient::ConnectToServer(const std::string &host, uint16_t port) {
     connect_context.socket = WSASocketW(
         AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
     if (connect_context.socket == INVALID_SOCKET) {
-        std::cerr << "WSASocket failed with error: " << WSAGetLastError()
-                  << std::endl;
+        spdlog::error("WSASocket failed with error: {}", WSAGetLastError());
         return;
     }
 
@@ -96,8 +93,7 @@ void IocpClient::ConnectToServer(const std::string &host, uint16_t port) {
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = 0;
     if (bind(connect_context.socket, (SOCKADDR *)&addr, sizeof(addr)) != 0) {
-        std::cerr << "bind failed with error: " << WSAGetLastError()
-                  << std::endl;
+        spdlog::error("bind failed with error: {}", WSAGetLastError());
         return;
     }
 
@@ -107,7 +103,7 @@ void IocpClient::ConnectToServer(const std::string &host, uint16_t port) {
 }
 
 void IocpClient::PostConnect(IocpContext *context) {
-    std::cout << "PostConnect called, threadid: " << GetCurrentThreadId() << std::endl;
+    spdlog::info("PostConnect called, threadid: {}", GetCurrentThreadId());
 
     socket_state = SOCKET_STATE::CONNECTING;
 
@@ -144,16 +140,14 @@ void IocpClient::Connect(IocpContext *context) {
         OnConnectSuccess();
     } else {
         if (WSAGetLastError() != ERROR_IO_PENDING) {
-            std::cerr << "ConnectEx failed with error: " << WSAGetLastError()
-                      << std::endl;
+            spdlog::error("ConnectEx failed with error: {}", WSAGetLastError());
             OnConnectFailed();
         }
     }
 }
 
 void IocpClient::PostRead(IocpContext *context) {
-    std::cout << "PostRead called, threadid: " << GetCurrentThreadId()
-              << std::endl;
+    spdlog::info("PostRead called, threadid: {}", GetCurrentThreadId());
     context->operation = IocpOperation::TO_READ;
     context->bytesTransferred = 0;
     context->overlapped = {};
@@ -166,7 +160,7 @@ void IocpClient::PostRead(IocpContext *context) {
 }
 
 void IocpClient::Read(IocpContext *context) {
-    std::cout << "Read called, threadid: " << GetCurrentThreadId() << std::endl;
+    spdlog::info("Read called, threadid: {}", GetCurrentThreadId());
     context->buffer.resize(1024);
     context->wsaBuf.buf = context->buffer.data();
     context->wsaBuf.len = static_cast<ULONG>(context->buffer.size());
@@ -187,11 +181,9 @@ void IocpClient::Read(IocpContext *context) {
         // to iocp queue OnRecv(context, bytesReceived); PostRead(context);
     } else {
         if (WSAGetLastError() != ERROR_IO_PENDING) {
-            std::cerr << "WSARecv failed with error: " << WSAGetLastError()
-                      << std::endl;
+            spdlog::error("WSARecv failed with error: {}", WSAGetLastError());
         } else {
-            std::cout << "WSARecv pending, waiting for completion..."
-                      << std::endl;
+            spdlog::info("WSARecv pending, waiting for completion...");
         }
     }
 }
@@ -199,10 +191,9 @@ void IocpClient::Read(IocpContext *context) {
 void IocpClient::OnRecv(IocpContext *context, DWORD bytesTransferred) {
     if (bytesTransferred > 0) {
         std::string data(context->wsaBuf.buf, bytesTransferred);
-        std::cout << "Received " << bytesTransferred << " bytes: " << data
-                  << std::endl;
+        spdlog::info("Received {} bytes: {}", bytesTransferred, data);
     } else {
-        std::cout << "Connection closed by server." << std::endl;
+        spdlog::info("Connection closed by server.");
     }
 }
 
@@ -225,8 +216,7 @@ void IocpClient::CheckPostWrite() {
 }
 
 void IocpClient::PostWrite(IocpContext *context) {
-    std::cout << "PostWrite called, threadid: " << GetCurrentThreadId()
-              << std::endl;
+    spdlog::info("PostWrite called, threadid: {}", GetCurrentThreadId());
     context->operation = IocpOperation::TO_WRITE;
     context->bytesTransferred = 0;
     context->overlapped = {};
@@ -239,8 +229,7 @@ void IocpClient::PostWrite(IocpContext *context) {
 }
 
 void IocpClient::Write(IocpContext *context) {
-    std::cout << "Write called, threadid: " << GetCurrentThreadId()
-              << std::endl;
+    spdlog::info("Write called, threadid: {}", GetCurrentThreadId());
     context->operation = IocpOperation::WRITE;
     context->wsaBuf.buf = const_cast<char *>(context->buffer.data()) + context->bytesTransferred;
     context->wsaBuf.len = static_cast<ULONG>(context->buffer.size() - context->bytesTransferred);
@@ -259,15 +248,13 @@ void IocpClient::Write(IocpContext *context) {
         // to iocp queue OnWrite(context, bytesSent); CheckPostWrite();
     } else {
         if (WSAGetLastError() != ERROR_IO_PENDING) {
-            std::cerr << "WSASend failed with error: " << WSAGetLastError()
-                      << std::endl;
+            spdlog::error("WSASend failed with error: {}", WSAGetLastError());
             {
                 std::lock_guard<std::mutex> lock(write_mutex);
                 write_state = WRITE_STATE::IDLE;
             }
         } else {
-            std::cout << "WSASend pending, waiting for completion..."
-                      << std::endl;
+            spdlog::info("WSASend pending, waiting for completion...");
             {
                 std::lock_guard<std::mutex> lock(write_mutex);
                 write_state = WRITE_STATE::WRITING;
@@ -278,15 +265,14 @@ void IocpClient::Write(IocpContext *context) {
 
 void IocpClient::OnWriteComplete(IocpContext *context, DWORD bytesTransferred) {
     std::string data(context->wsaBuf.buf, bytesTransferred);
-    std::cout << "OnWriteComplete called, threadid: " << GetCurrentThreadId()
-              << ", sent data: " << data << std::endl;
+    spdlog::info("OnWriteComplete called, threadid: {}, sent data: {}", GetCurrentThreadId(), data);
 
     context->bytesTransferred += bytesTransferred;
     if (context->bytesTransferred < context->buffer.size()) {
         // Not all data sent, continue sending
         Write(context);
     } else {
-        std::cout << "Sent " << context->bytesTransferred << " bytes successfully." << std::endl;
+        spdlog::info("Sent {} bytes successfully.", context->bytesTransferred);
         {
             std::lock_guard<std::mutex> lock(write_mutex);
             write_state = WRITE_STATE::IDLE;
@@ -296,5 +282,5 @@ void IocpClient::OnWriteComplete(IocpContext *context, DWORD bytesTransferred) {
 }
 
 void IocpClient::OnWriteFailed() {
-    std::cerr << "Write operation failed." << std::endl;
+    spdlog::error("Write operation failed.");
 }

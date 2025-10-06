@@ -7,11 +7,12 @@
 
 #include <MSWSock.h>
 #include <WS2tcpip.h>
-#include <iostream>
 
 #include "client/iocpclient.h"
 #include "iocpcontext.h"
 #include "server/iocpserver.h"
+
+#include "spdlog/spdlog.h"
 
 
 IocpWorker::IocpWorker(int threadCount) : threadCount(threadCount) {
@@ -29,8 +30,7 @@ IocpWorker::~IocpWorker() {
 void IocpWorker::CreateIocp() {
     iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0);
     if (iocp == nullptr) {
-        std::cerr << "CreateIoCompletionPort failed with error: "
-                  << GetLastError() << std::endl;
+        spdlog::error("CreateIoCompletionPort failed with error: {}", GetLastError());
     }
 }
 
@@ -67,9 +67,7 @@ void IocpWorker::WorkThreadProc() {
 
         if (result && bytesTransferred == 0 && completionKey == 0 &&
             overlapped == nullptr) {
-            std::cout
-                << "GetQueuedCompletionStatus returned true with all zeros"
-                << std::endl;
+            spdlog::info("GetQueuedCompletionStatus returned true with all zeros");
             break;
         }
 
@@ -77,7 +75,7 @@ void IocpWorker::WorkThreadProc() {
             DWORD errorCode = WSAGetLastError();
 
             if (errorCode == ERROR_OPERATION_ABORTED) {
-                std::cout << "operation has been canceled" << std::endl;
+                spdlog::info("operation has been canceled");
                 break;
             }
 
@@ -90,29 +88,26 @@ void IocpWorker::WorkThreadProc() {
                            sizeof(errorMsg),
                            NULL);
 
-            std::cerr << "GetQueuedCompletionStatus failed with error: "
-                      << errorCode << " - " << errorMsg << std::endl;
+            spdlog::error("GetQueuedCompletionStatus failed with error: {} - {}", errorCode, errorMsg);
         }
 
         if (!result && overlapped == nullptr) {
-            std::cerr << "GetQueuedCompletionStatus failed: " << GetLastError()
-                      << std::endl;
+            spdlog::error("GetQueuedCompletionStatus failed: {}", GetLastError());
             break;
         }
 
         IocpCore *core = reinterpret_cast<IocpCore *>(completionKey);
         if (core == nullptr) {
-            std::cerr << "GetQueuedCompletionStatus returned nullptr core"
-                      << std::endl;
+            spdlog::error("GetQueuedCompletionStatus returned nullptr core");
             break;
         }
 
         IocpContext *pContext =
             CONTAINING_RECORD(overlapped, IocpContext, overlapped);
 
-        std::cout << "bytesTransferred: " << bytesTransferred
-                  << " operation: " << (int)pContext->operation
-                  << " threadid: " << GetCurrentThreadId() << std::endl;
+        spdlog::info("bytesTransferred: {} operation: {} threadid: {}",
+                     bytesTransferred, (int)pContext->operation,
+                     GetCurrentThreadId());
 
         switch (pContext->operation) {
         case IocpOperation::TO_ACCEPT:
@@ -141,7 +136,7 @@ void IocpWorker::WorkThreadProc() {
                                                          bytesTransferred);
                 dynamic_cast<IocpClient *>(core)->PostRead(pContext);
             } else {
-                std::cerr << "Read operation failed" << std::endl;
+                spdlog::error("Read operation failed");
             }
             break;
         case IocpOperation::TO_WRITE:
@@ -155,7 +150,7 @@ void IocpWorker::WorkThreadProc() {
             }
             break;
         default:
-            std::cerr << "Unknown operation" << std::endl;
+            spdlog::error("Unknown operation");
             break;
         }
     }
@@ -165,8 +160,7 @@ void IocpWorker::AssociateSocket(SOCKET socket, ULONG_PTR completionKey) {
     HANDLE result = CreateIoCompletionPort(
         reinterpret_cast<HANDLE>(socket), iocp, completionKey, 0);
     if (result == nullptr) {
-        std::cerr << "CreateIoCompletionPort failed with error: "
-                  << GetLastError() << std::endl;
+        spdlog::error("CreateIoCompletionPort failed with error: {}", GetLastError());
     }
 }
 

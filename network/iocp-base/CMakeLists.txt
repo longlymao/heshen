@@ -15,3 +15,8 @@ target_link_libraries(iocpbase PUBLIC
   ws2_32.lib
   mswsock.lib
 )
+
+target_link_libraries(iocpbase PRIVATE
+    fmt::fmt
+    spdlog::spdlog
+)

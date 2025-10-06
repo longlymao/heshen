@@ -1,11 +1,7 @@
-#include <iostream>
-
 #include "client/iocpclient.h"
 #include "worker/iocpworker.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
-
     IocpWorker worker;
     IocpClient client(worker);
 
