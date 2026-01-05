@@ -17,3 +17,5 @@ add_subdirectory(rolling-utils)
 add_subdirectory(rolling-audio)
 
 add_subdirectory(rolling-render)
+
+add_subdirectory(ipc)
