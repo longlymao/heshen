@@ -1,5 +1,8 @@
 add_library(pipe-win STATIC
     "src/name_pipe_host.h" "src/name_pipe_host.cpp"
+    "src/name_pipe_base.h" "src/name_pipe_base.cpp"
+    "src/name_pipe_client.h" "src/name_pipe_client.cpp"
+    "src/name_pipe_server.h" "src/name_pipe_server.cpp"
 )
 
 target_compile_definitions(pipe-win PUBLIC WIN32_LEAN_AND_MEAN)
