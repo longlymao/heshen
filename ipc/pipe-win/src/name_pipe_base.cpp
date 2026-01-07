@@ -7,13 +7,13 @@
 
 namespace rolling::ipc::pipe_win {
     NamePipeBase::NamePipeBase() {
-        Init();
-        Start();
+        is_inited_ = true;
+        InitBase();
     }
 
     NamePipeBase::~NamePipeBase() {
         Stop();
-        Cleanup();
+        CleanupBase();
     }
 
     bool NamePipeBase::IsConnected() const {
@@ -44,16 +44,7 @@ namespace rolling::ipc::pipe_win {
         }
     }
 
-    void NamePipeBase::Init() {
-        is_inited_ = true;
-        InitBaseEvents();
-    }
-
-    void NamePipeBase::Cleanup() {
-        ClearBaseEvents();
-    }
-
-    void NamePipeBase::InitBaseEvents() {
+    void NamePipeBase::InitBase() {
         close_event_ = CreateEvent(nullptr, FALSE, FALSE, nullptr);
         send_event_ = CreateEvent(nullptr, FALSE, FALSE, nullptr);
         read_complete_event_ = CreateEvent(nullptr, FALSE, FALSE, nullptr);
@@ -68,7 +59,7 @@ namespace rolling::ipc::pipe_win {
                            write_complete_event_ != nullptr);
     }
 
-    void NamePipeBase::ClearBaseEvents() {
+    void NamePipeBase::CleanupBase() {
         if (close_event_ != nullptr) {
             CloseHandle(close_event_);
             close_event_ = nullptr;
@@ -100,7 +91,7 @@ namespace rolling::ipc::pipe_win {
             SPDLOG_ERROR("{}: Not connected", __FUNCTION__);
             return;
         }
-        if(!pipe_handle_){
+        if (!pipe_handle_) {
             SPDLOG_ERROR("{}: Invalid pipe handle", __FUNCTION__);
             return;
         }
@@ -109,6 +100,11 @@ namespace rolling::ipc::pipe_win {
                            send_event_,
                            read_complete_event_,
                            write_complete_event_};
+
+        if (!ReadData(read_buffer_, sizeof(read_buffer_))) {
+            SPDLOG_INFO("{}: Initial ReadData failed", __FUNCTION__);
+            return;
+        }
 
         while (true) {
             DWORD wait_result = WaitForMultipleObjects(
@@ -181,6 +177,82 @@ namespace rolling::ipc::pipe_win {
             return false;
         }
         return true;
+    }
+
+    size_t NamePipeBase::PickSendData(char *buffer, size_t buffer_size) {
+        std::lock_guard<std::mutex> lock(send_queue_mutex_);
+        if (send_queue_.empty()) {
+            return 0;
+        }
+
+        auto &item = send_queue_.front();
+        size_t bytes_to_copy =
+            (std::min)(buffer_size, item.second.size() - item.first);
+        memcpy(buffer, item.second.data() + item.first, bytes_to_copy);
+        item.first += bytes_to_copy;
+
+        if (item.first >= item.second.size()) {
+            send_queue_.pop();
+        }
+
+        SPDLOG_INFO("{}: Picked {} bytes to send", __FUNCTION__, bytes_to_copy);
+
+        return bytes_to_copy;
+    }
+
+    bool NamePipeBase::WriteData(const char *data, size_t size) {
+        SPDLOG_INFO("{}: Writing {} bytes", __FUNCTION__, size);
+
+        ResetEvent(write_complete_event_);
+
+        DWORD bytes_written = 0;
+        BOOL result = WriteFile(pipe_handle_,
+                                data,
+                                static_cast<DWORD>(size),
+                                &bytes_written,
+                                &write_overlapped_);
+
+        if (!result) {
+            if (GetLastError() != ERROR_IO_PENDING) {
+                SPDLOG_INFO("{}: WriteFile failed, lasterror: {}",
+                            __FUNCTION__,
+                            GetLastError());
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool NamePipeBase::ReadData(const char *buffer, size_t size) {
+        SPDLOG_INFO("{}", __FUNCTION__);
+
+        ResetEvent(read_complete_event_);
+
+        DWORD bytes_read = 0;
+        BOOL result = ReadFile(pipe_handle_,
+                               (LPVOID)buffer,
+                               static_cast<DWORD>(size),
+                               &bytes_read,
+                               &read_overlapped_);
+
+        if (!result) {
+            if (GetLastError() != ERROR_IO_PENDING) {
+                SPDLOG_INFO("{}: ReadFile failed, lasterror: {}",
+                            __FUNCTION__,
+                            GetLastError());
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    void NamePipeBase::NotifyRecvCallback(const char *data, size_t size){
+        std::lock_guard<std::mutex> lock(recv_callback_mutex_);
+        if (recv_callback_) {
+            recv_callback_(data, size);
+        }
     }
 
 } // namespace rolling::ipc::pipe_win

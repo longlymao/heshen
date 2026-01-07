@@ -8,13 +8,11 @@ namespace rolling::ipc::pipe_win
     {
         public:
             NamePipeServer(const std::string& pipe_name);
+            ~NamePipeServer();
 
         private:
-            void Init() override;
-            void Cleanup() override;
-
-            void InitEvents();
-            void ClearEvents();
+            void InitCustom();
+            void CleanupCustom();
 
             bool CreatePipe();
             bool AcceptClient();

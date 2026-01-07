@@ -18,15 +18,12 @@ namespace rolling::ipc::pipe_win {
         void SendData(const std::string &message);
         void SetRecvCallback(RecvCallback callback);
 
-      protected:
         void Start();
         void Stop();
 
-        virtual void Init();
-        virtual void Cleanup();
-
-        void InitBaseEvents();
-        void ClearBaseEvents();
+      protected:
+        void InitBase();
+        void CleanupBase();
 
         static void WorkThreadProc(NamePipeBase *host);
         virtual void WorkThreadMain() = 0;
