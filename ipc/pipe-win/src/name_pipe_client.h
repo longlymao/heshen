@@ -11,6 +11,7 @@ namespace rolling::ipc::pipe_win
 
         private:
             bool CreatePipe();
+            void CleanupPipe();
 
             void WorkThreadMain() override;
 

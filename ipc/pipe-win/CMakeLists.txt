@@ -1,5 +1,4 @@
 add_library(pipe-win STATIC
-    "src/name_pipe_host.h" "src/name_pipe_host.cpp"
     "src/name_pipe_base.h" "src/name_pipe_base.cpp"
     "src/name_pipe_client.h" "src/name_pipe_client.cpp"
     "src/name_pipe_server.h" "src/name_pipe_server.cpp"
@@ -11,6 +10,7 @@ target_include_directories(pipe-win PUBLIC "src")
 target_link_libraries(pipe-win PUBLIC
     fmt::fmt
     spdlog::spdlog
+    magic_enum::magic_enum
 )
 
 target_link_libraries(pipe-win PUBLIC ws2_32)

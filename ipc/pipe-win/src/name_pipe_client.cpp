@@ -29,6 +29,10 @@ namespace rolling::ipc::pipe_win {
         return true;
     }
 
+    void NamePipeClient::CleanupPipe(){
+        CleanupPipeHandle();
+    }
+
     void NamePipeClient::WorkThreadMain() {
         if(!CreatePipe()){
             return;
@@ -37,5 +41,8 @@ namespace rolling::ipc::pipe_win {
             is_connected_ = true;
         }
         ReadWriteLoop();
+        CleanupPipe();
+
+        SPDLOG_INFO("{}: Work thread exiting", __FUNCTION__);
     }
 } // namespace rolling::ipc::pipe_win

@@ -3,6 +3,7 @@
 #include <handleapi.h>
 #include <ioapiset.h>
 #include <minwindef.h>
+#include <synchapi.h>
 #include <winsock.h>
 
 
@@ -50,6 +51,10 @@ namespace rolling::ipc::pipe_win {
         return true;
     }
 
+    void NamePipeServer::CleanupPipe() {
+        CleanupPipeHandle();
+    }
+
     bool NamePipeServer::AcceptClient() {
         SPDLOG_INFO("{}: Waiting for client to connect...", __FUNCTION__);
         BOOL result = ConnectNamedPipe(pipe_handle_, &accept_overlapped_);
@@ -62,6 +67,8 @@ namespace rolling::ipc::pipe_win {
                 return false;
             }
         }
+
+        op_status_map_[eOpType::kConnect] = eOpStatus::kPending;
 
         HANDLE events[] = {close_event_, accept_complete_event_};
 
@@ -92,17 +99,48 @@ namespace rolling::ipc::pipe_win {
         return true;
     }
 
+    void NamePipeServer::CancelAccept() {
+        SPDLOG_INFO("{}: Cancelling accept operations", __FUNCTION__);
+        if (op_status_map_[eOpType::kConnect] == eOpStatus::kPending) {
+            SPDLOG_INFO("{}: There are pending accept operations, cancelling...",
+                        __FUNCTION__);
+            CancelIoEx(pipe_handle_, &accept_overlapped_);
+        }
+
+        while(op_status_map_[eOpType::kConnect] == eOpStatus::kPending) {
+            DWORD wait_result = WaitForSingleObject(
+                accept_complete_event_,
+                INFINITE);
+
+            SPDLOG_INFO("{}: Waiting for accept cancellation, result: {}",
+                        __FUNCTION__,
+                        wait_result);
+
+            if (wait_result == WAIT_OBJECT_0) {
+                SPDLOG_INFO("{}: Accept complete event signaled after cancel",
+                            __FUNCTION__);
+                OnClientAccepted();
+            }
+        }
+    }
+
     void NamePipeServer::WorkThreadMain() {
         if (!CreatePipe()) {
             return;
         }
         if (!AcceptClient()) {
+            CancelAccept();
             return;
         }
         ReadWriteLoop();
+        CleanupPipe();
+
+        SPDLOG_INFO("{}: Work thread exiting", __FUNCTION__);
     }
 
     bool NamePipeServer::OnClientAccepted() {
+        op_status_map_[eOpType::kConnect] = eOpStatus::kIdle;
+
         DWORD bytes_transferred = 0;
         BOOL result = GetOverlappedResult(
             pipe_handle_, &accept_overlapped_, &bytes_transferred, FALSE);

@@ -15,7 +15,10 @@ namespace rolling::ipc::pipe_win
             void CleanupCustom();
 
             bool CreatePipe();
+            void CleanupPipe();
+
             bool AcceptClient();
+            void CancelAccept();
 
             void WorkThreadMain() override;
 

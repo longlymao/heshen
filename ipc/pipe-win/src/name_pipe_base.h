@@ -5,8 +5,27 @@
 #include <queue>
 #include <string>
 #include <thread>
+#include <unordered_map>
 
 namespace rolling::ipc::pipe_win {
+    enum class eOpType {
+      kRead,
+      kWrite,
+      kConnect,
+    };
+
+    enum class eOpStatus {
+      kIdle,
+      kPending,
+    };
+
+    enum class ePipeState {
+      kIdle,
+      kConnecting,
+      kEstablished,
+      kDisconnecting,
+    };
+
     using RecvCallback = void (*)(const char *data, size_t size);
 
     class NamePipeBase {
@@ -25,15 +44,22 @@ namespace rolling::ipc::pipe_win {
         void InitBase();
         void CleanupBase();
 
+        void CleanupPipeHandle();
+
         static void WorkThreadProc(NamePipeBase *host);
         virtual void WorkThreadMain() = 0;
 
         void ReadWriteLoop();
+        void CancelReadWriteOps();
+
+        void ChangeState(ePipeState new_state);
 
       private:
         bool OnSendArrivedInternal();
         bool OnWriteCompleteInternal();
         bool OnReadCompleteInternal();
+
+        bool CheckToWriteData();
 
         size_t PickSendData(char *buffer, size_t buffer_size);
         bool WriteData(const char *data, size_t size);
@@ -48,6 +74,9 @@ namespace rolling::ipc::pipe_win {
         HANDLE close_event_ = INVALID_HANDLE_VALUE;
 
         std::atomic_bool is_connected_{false};
+
+        ePipeState pipe_state_ = ePipeState::kIdle;
+        std::unordered_map<eOpType, eOpStatus> op_status_map_;
 
       private:
         using SendItem = std::pair<size_t, std::string>;
@@ -70,7 +99,5 @@ namespace rolling::ipc::pipe_win {
 
         char read_buffer_[kBufSize] = {0};
         char write_buffer_[kBufSize] = {0};
-
-        bool is_writing_ = false;
     };
 } // namespace rolling::ipc::pipe_win

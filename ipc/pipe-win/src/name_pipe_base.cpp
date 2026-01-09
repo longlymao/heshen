@@ -1,9 +1,13 @@
 #include "name_pipe_base.h"
 #include "spdlog/spdlog.h"
+#include <errhandlingapi.h>
+#include <handleapi.h>
+#include <magic_enum/magic_enum.hpp>
 #include <minwindef.h>
 #include <mutex>
 #include <synchapi.h>
 #include <winbase.h>
+
 
 namespace rolling::ipc::pipe_win {
     NamePipeBase::NamePipeBase() {
@@ -78,6 +82,17 @@ namespace rolling::ipc::pipe_win {
         }
     }
 
+    void NamePipeBase::CleanupPipeHandle() {
+        if (pipe_handle_) {
+            BOOL result = CloseHandle(pipe_handle_);
+            if (!result) {
+                SPDLOG_INFO("{} CloseHandle failed, error: {}",
+                            __FUNCTION__,
+                            GetLastError());
+            }
+        }
+    }
+
     void NamePipeBase::WorkThreadProc(NamePipeBase *host) {
         host->WorkThreadMain();
     }
@@ -110,6 +125,10 @@ namespace rolling::ipc::pipe_win {
             DWORD wait_result = WaitForMultipleObjects(
                 sizeof(events) / sizeof(events[0]), events, FALSE, INFINITE);
 
+            SPDLOG_INFO("{}: WaitForMultipleObjects returned {}",
+                        __FUNCTION__,
+                        wait_result);
+
             if (wait_result == WAIT_OBJECT_0) {
                 SPDLOG_INFO("{}: Close event signaled", __FUNCTION__);
                 break;
@@ -123,33 +142,76 @@ namespace rolling::ipc::pipe_win {
                 if (!OnReadCompleteInternal()) {
                     break;
                 }
+                if (!ReadData(read_buffer_, sizeof(read_buffer_))) {
+                    break;
+                }
             } else if (wait_result == WAIT_OBJECT_0 + 3) {
                 SPDLOG_INFO("{}: Write complete event signaled", __FUNCTION__);
                 if (!OnWriteCompleteInternal()) {
                     break;
                 }
+                if(!CheckToWriteData()) {
+                    break;
+                }
             }
         }
+
+        CancelReadWriteOps();
+    }
+
+    void NamePipeBase::CancelReadWriteOps() {
+        SPDLOG_INFO("{}: Cancelling read/write operations", __FUNCTION__);
+        if (op_status_map_[eOpType::kRead] == eOpStatus::kPending) {
+            SPDLOG_INFO("{}: There are pending read operations, cancelling...",
+                        __FUNCTION__);
+            CancelIoEx(pipe_handle_, &read_overlapped_);
+        }
+        if (op_status_map_[eOpType::kWrite] == eOpStatus::kPending) {
+            SPDLOG_INFO("{}: There are pending write operations, cancelling...",
+                        __FUNCTION__);
+            CancelIoEx(pipe_handle_, &write_overlapped_);
+        }
+
+        while(op_status_map_[eOpType::kRead] == eOpStatus::kPending ||
+              op_status_map_[eOpType::kWrite] == eOpStatus::kPending) {
+            DWORD wait_result = WaitForMultipleObjects(
+                2,
+                (HANDLE[]){read_complete_event_, write_complete_event_},
+                FALSE,
+                INFINITE);
+
+            SPDLOG_INFO("{}: Waiting for read/write cancellation, result: {}",
+                        __FUNCTION__,
+                        wait_result);
+
+            if (wait_result == WAIT_OBJECT_0) {
+                SPDLOG_INFO("{}: Read complete event signaled after cancel",
+                            __FUNCTION__);
+                OnReadCompleteInternal();
+            } else if (wait_result == WAIT_OBJECT_0 + 1) {
+                SPDLOG_INFO("{}: Write complete event signaled after cancel",
+                            __FUNCTION__);
+                OnWriteCompleteInternal();
+            }
+        }
+    }
+
+    void NamePipeBase::ChangeState(ePipeState new_state) {
+        SPDLOG_INFO("{}: Changing state from {} to {}",
+                    __FUNCTION__,
+                    magic_enum::enum_name(pipe_state_),
+                    magic_enum::enum_name(new_state));
+        pipe_state_ = new_state;
     }
 
     bool NamePipeBase::OnSendArrivedInternal() {
         ResetEvent(send_event_);
-        if (!is_writing_) {
-            size_t len = PickSendData(write_buffer_, sizeof(write_buffer_));
-            if (len > 0) {
-                if (!WriteData(write_buffer_, len)) {
-                    return false;
-                } else {
-                    is_writing_ = true;
-                }
-            }
-        }
-        return true;
+        return CheckToWriteData();
     }
 
     bool NamePipeBase::OnWriteCompleteInternal() {
         ResetEvent(write_complete_event_);
-        is_writing_ = false;
+        op_status_map_[eOpType::kWrite] = eOpStatus::kIdle;
 
         DWORD bytes_written = 0;
         BOOL result = GetOverlappedResult(
@@ -164,17 +226,29 @@ namespace rolling::ipc::pipe_win {
 
     bool NamePipeBase::OnReadCompleteInternal() {
         ResetEvent(read_complete_event_);
+        op_status_map_[eOpType::kRead] = eOpStatus::kIdle;
+
         DWORD bytes_read = 0;
         BOOL result = GetOverlappedResult(
             pipe_handle_, &read_overlapped_, &bytes_read, FALSE);
 
         SPDLOG_INFO("{}: Read {} bytes", __FUNCTION__, bytes_read);
         if (!result) {
+            SPDLOG_INFO("{} GetOverlappedResult failed, error: {}",
+                        __FUNCTION__,
+                        GetLastError());
             return false;
         }
         NotifyRecvCallback(read_buffer_, bytes_read);
-        if (!ReadData(read_buffer_, sizeof(read_buffer_))) {
-            return false;
+        return true;
+    }
+
+    bool NamePipeBase::CheckToWriteData() {
+        if (op_status_map_[eOpType::kWrite] != eOpStatus::kPending) {
+            size_t len = PickSendData(write_buffer_, sizeof(write_buffer_));
+            if (len > 0) {
+                return WriteData(write_buffer_, len);
+            }
         }
         return true;
     }
@@ -217,10 +291,12 @@ namespace rolling::ipc::pipe_win {
                 SPDLOG_INFO("{}: WriteFile failed, lasterror: {}",
                             __FUNCTION__,
                             GetLastError());
+                op_status_map_[eOpType::kWrite] = eOpStatus::kIdle;
                 return false;
             }
         }
 
+        op_status_map_[eOpType::kWrite] = eOpStatus::kPending;
         return true;
     }
 
@@ -241,17 +317,25 @@ namespace rolling::ipc::pipe_win {
                 SPDLOG_INFO("{}: ReadFile failed, lasterror: {}",
                             __FUNCTION__,
                             GetLastError());
+                op_status_map_[eOpType::kRead] = eOpStatus::kIdle;
                 return false;
             }
         }
 
+        op_status_map_[eOpType::kRead] = eOpStatus::kPending;
         return true;
     }
 
-    void NamePipeBase::NotifyRecvCallback(const char *data, size_t size){
-        std::lock_guard<std::mutex> lock(recv_callback_mutex_);
-        if (recv_callback_) {
-            recv_callback_(data, size);
+    void NamePipeBase::NotifyRecvCallback(const char *data, size_t size) {
+        SPDLOG_INFO("{}: Notifying receive callback", __FUNCTION__);
+
+        RecvCallback callback_copy;
+        {
+            std::lock_guard<std::mutex> lock(recv_callback_mutex_);
+            callback_copy = recv_callback_;
+        }
+        if (callback_copy) {
+            callback_copy(data, size);
         }
     }
 
