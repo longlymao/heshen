@@ -26,6 +26,4 @@ protected:
 
 protected:
     IocpWorker& worker_;
-
-    std::unordered_map<OVERLAPPED*, IocpContext*> context_map_;
 };
