@@ -1,6 +1,6 @@
 #include "playercontrol.h"
 #include "app/input/inputmanager.h"
-#include "matrix.h"
+#include "matrix_math.hpp"
 
 #include "world3d.h"
 #include "scene/camera/camera3d.h"

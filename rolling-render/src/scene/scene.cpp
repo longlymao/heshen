@@ -30,11 +30,11 @@ namespace rolling {
 
 	void Scene::Update()
 	{
-		for (auto* world : worlds2d) {
-			world->Update();
+		for (auto world2 : worlds2d) {
+			world2->Update();
 		}
-		for (auto* world : worlds3d) {
-			world->Update();
+		for (auto world3 : worlds3d) {
+			world3->Update();
 		}
 	}
 

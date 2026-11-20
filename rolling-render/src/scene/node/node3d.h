@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "matrix.h"
+#include "matrix_math.hpp"
 
 namespace rolling {
 	class World3D;

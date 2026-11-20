@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "matrix.h"
+#include "matrix_math.hpp"
 #include "image.h"
 #include "shaderbuffer.h"
 #include "base/color.h"

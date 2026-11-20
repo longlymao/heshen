@@ -8,7 +8,7 @@
 
 #include <vector>
 #include "ref.h"
-#include "matrix.h"
+#include "matrix_math.hpp"
 
 namespace rolling {
 

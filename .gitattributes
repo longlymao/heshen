@@ -1,0 +1,11 @@
+# 源码统一 LF
+*.hpp text eol=lf
+*.h text eol=lf
+*.cpp text eol=lf
+*.c text eol=lf
+*.cmake text eol=lf
+CMakeLists.txt text eol=lf
+# 二进制文件标记 -text
+*.png -text
+*.jpg -text
+*.exe -text
